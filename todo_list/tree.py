@@ -19,28 +19,36 @@ class TreeNode:
         child._parent = self
 
     def last_child(self) -> TreeNode:
-        return self._children[-1]
+        return self.children[-1]
 
+    def change_level(self, delta: int):
+        self._level += delta
+        for child in self.children:
+            child.change_level(delta)
+
+    @property
     def parent(self) -> TreeNode:
         return self._parent
 
+    @property
     def level(self):
         return self._level
 
+    @property
     def children(self) -> List[TreeNode]:
         return self._children
 
     def root(self) -> TreeNode:
         out = self
         while True:
-            if out.parent() is None:
+            if out.parent is None:
                 return out
-            out = out.parent()
+            out = out.parent
 
     def __str__(self) -> str:
         indent = " " * self._level * 2
         s = indent + f"- {self.data}"
-        for child in self.children():
+        for child in self.children:
             s += indent + f"\n{child}"
         return s
 
@@ -49,13 +57,14 @@ class TreeNode:
         level_equal = self._level == other._level
         if (not data_equal) or (not level_equal):
             return False
-        for child, other_child in zip(self.children(), other.children()):
+        for child, other_child in zip(self.children, other.children):
             if not child == other_child:
                 return False
         return True
 
+
 def tree_nodes_from_string(
-    s: str, node_from_str: Callable[[str, TreeNode], TreeNode], log=False
+    s: str, node_from_str: Callable[[str, TreeNode], TreeNode]
 ) -> List[TreeNode]:
     current_level = 0
     insert_point = TreeNode("root")
@@ -63,19 +72,18 @@ def tree_nodes_from_string(
     for line in s.splitlines():
         try:
             node = node_from_str(line, node)
-            if log:
-                print(f"Adding node {node} to level {node._level}")
-            if node._level > current_level:
+            if node.level > current_level:
                 insert_point = insert_point.last_child()
             elif node._level < current_level:
-                for _ in range(current_level - node._level):
-                    insert_point = insert_point.parent()
-            current_level = node._level
+                for _ in range(current_level - node.level):
+                    insert_point = insert_point.parent
+            current_level = node.level
             insert_point.add_child(node)
         except ValueError as e:
             continue
 
-    return insert_point.root().children()
+    insert_point.change_level(-1)
+    return insert_point.root().children
 
 
 def tree_nodes_to_string(nodes: List[TreeNode]) -> str:

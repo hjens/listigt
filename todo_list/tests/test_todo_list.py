@@ -1,7 +1,7 @@
 import pytest
 
 from todo_list.todo_list import TodoItem
-from todo_list.tree import TreeNode, tree_nodes_to_string
+from todo_list.tree import TreeNode, tree_nodes_from_string
 
 
 @pytest.mark.parametrize(
@@ -29,6 +29,7 @@ def test_tree_node_to_str(input, expected):
     result = str(input)
     assert result == expected
 
+
 def test_tree_to_str():
     root = TreeNode(TodoItem("root"))
     leaf1 = TreeNode(TodoItem("leaf1"))
@@ -38,9 +39,19 @@ def test_tree_to_str():
 
     expected = "- root\n  - leaf1\n  - leaf2"
 
-
     result = str(root)
 
     assert result == expected
 
+def test_to_and_from_str():
+    root = TreeNode(TodoItem("root"))
+    leaf1 = TreeNode(TodoItem("leaf1"))
+    leaf2 = TreeNode(TodoItem("leaf2"))
+    root.add_child(leaf1)
+    root.add_child(leaf2)
 
+    tree_as_str = str(root)
+
+    tree_from_str = tree_nodes_from_string(tree_as_str, TodoItem.tree_node_from_str)
+
+    assert tree_from_str[0] == root
