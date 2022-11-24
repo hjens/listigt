@@ -41,3 +41,20 @@ def test_change_level():
     assert branch2.level == 0
     assert leaf1.level == 1
     assert leaf2.level == 2
+
+
+def test_gen_all_items():
+    root = TreeNode("root")
+    branch = TreeNode("branch")
+    leaf = TreeNode("leaf")
+    root.add_child(branch)
+    branch.add_child(leaf)
+
+    generator = root.gen_all_nodes()
+    first = next(generator)
+    second = next(generator)
+    third = next(generator)
+
+    assert first == root
+    assert second == branch
+    assert third == leaf

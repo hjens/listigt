@@ -10,10 +10,12 @@ class ViewModel:
 
     def item_titles(self) -> List[str]:
         def text_for_item(item, index):
+            indent = " " * item.level * 2
+            text = item.data.text
             if index == self.selection_index:
-                return f"► {item}"
-            return f"- {item}"
-        lines = [text_for_item(item.data.text, index) for index, item in enumerate(self.todo_list.items)]
+                return f"► {indent}{text}"
+            return f"- {indent}{text}"
+        lines = [text_for_item(item, index) for index, item in enumerate(self.todo_list.gen_all_items())]
         return lines
 
     def select_next(self):

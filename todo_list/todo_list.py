@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Generator
 
 from todo_list.tree import TreeNode
 
@@ -42,6 +42,11 @@ class TodoItem:
 class TodoList:
     def __init__(self, items: List[TreeNode]):
         self.items = items
+
+    def gen_all_items(self) -> Generator[TreeNode]:
+        for item in self.items:
+            for node in item.gen_all_nodes():
+                yield node
 
     @classmethod
     def from_string(
