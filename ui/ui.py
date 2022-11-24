@@ -22,7 +22,7 @@ def start_ui(vm: view_model.ViewModel):
 
         manager.add(ptg.Window(
             "[blue]My test TUI", box="EMPTY"
-        ))
+        ), animate=False)
 
         todo_item_tree = widgets.TodoItemTree(vm)
 
@@ -30,7 +30,7 @@ def start_ui(vm: view_model.ViewModel):
             todo_item_tree,
             vertical_align=VerticalAlignment.TOP,
             assign="body"
-        ))
+        ), animate=False)
 
         def handle_key(key):
             if key == "q":
