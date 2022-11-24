@@ -1,6 +1,7 @@
 from typing import Any, List
 
 import pytermgui as ptg
+from pytermgui import HorizontalAlignment
 
 from view_model import view_model
 
@@ -28,5 +29,8 @@ class TodoItemTree(ptg.Container):
         return False
 
     def _update_widgets(self):
-        labels = [ptg.Label(item) for item in self._view_model.item_titles()]
+        labels = [
+            ptg.Label(item, parent_align=HorizontalAlignment.LEFT)
+            for item in self._view_model.item_titles()
+        ]
         self.set_widgets(labels)

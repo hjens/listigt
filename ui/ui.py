@@ -1,4 +1,5 @@
 import pytermgui as ptg
+from pytermgui import VerticalAlignment
 
 from ui import widgets
 from view_model import view_model
@@ -27,6 +28,7 @@ def start_ui(vm: view_model.ViewModel):
 
         manager.add(ptg.Window(
             todo_item_tree,
+            vertical_align=VerticalAlignment.TOP,
             assign="body"
         ))
 
