@@ -1,10 +1,10 @@
 from typing import List
 
-from todo_list import tree
+from todo_list import todo_list
 
 
 class ViewModel:
-    def __init__(self, todo_list: List[tree.TreeNode]):
+    def __init__(self, todo_list: todo_list.TodoList):
         self.todo_list = todo_list
         self.selection_index = 0
 
@@ -13,7 +13,7 @@ class ViewModel:
             if index == self.selection_index:
                 return f"► {item}"
             return f"- {item}"
-        lines = [text_for_item(item.data.text, index) for index, item in enumerate(self.todo_list)]
+        lines = [text_for_item(item.data.text, index) for index, item in enumerate(self.todo_list.items)]
         return lines
 
     def select_next(self):

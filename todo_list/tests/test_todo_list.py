@@ -1,7 +1,7 @@
 import pytest
 
-from todo_list.todo_list import TodoItem
-from todo_list.tree import TreeNode, tree_nodes_from_string
+from todo_list.todo_list import TodoItem, TodoList
+from todo_list.tree import TreeNode
 
 
 @pytest.mark.parametrize(
@@ -52,9 +52,9 @@ def test_to_and_from_str():
 
     tree_as_str = str(root)
 
-    tree_from_str = tree_nodes_from_string(tree_as_str, TodoItem.tree_node_from_str)
+    list_from_str = TodoList.from_string(tree_as_str, TodoItem.tree_node_from_str)
 
-    assert tree_from_str[0] == root
+    assert list_from_str.items[0] == root
 
 
 def test_build_large_tree_with_subtitle():
@@ -68,7 +68,7 @@ def test_build_large_tree_with_subtitle():
     - Item 1.2.1
      - Item 1.2.1.1
 - Item 2"""
-    tree_nodes = tree_nodes_from_string(s, TodoItem.tree_node_from_str)
-    assert len(tree_nodes) == 2
-    assert tree_nodes[0].children[0].data.text == "Item 1.1"
-    assert tree_nodes[0].children[0].data.subtitle == "Subtitle"
+    list = TodoList.from_string(s, TodoItem.tree_node_from_str)
+    assert len(list.items) == 2
+    assert list.items[0].children[0].data.text == "Item 1.1"
+    assert list.item[0].children[0].data.subtitle == "Subtitle"

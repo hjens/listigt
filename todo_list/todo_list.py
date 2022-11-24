@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List, Callable
 
 from todo_list.tree import TreeNode
 
@@ -16,7 +18,7 @@ class TodoItem:
 
     def __str__(self):
         complete_str = f"{COMPLETE_TEXT} " if self.complete else ""
-        subtitle_str = f"\n\"{self.subtitle}\"" if self.subtitle else ""
+        subtitle_str = f'\n"{self.subtitle}"' if self.subtitle else ""
         return f"{complete_str}{self.text}{subtitle_str}"
 
     @classmethod
@@ -35,3 +37,36 @@ class TodoItem:
         complete = COMPLETE_TEXT in text
         text = text.replace(COMPLETE_TEXT, "").strip()
         return TreeNode(data=TodoItem(text=text, complete=complete), level=level)
+
+
+class TodoList:
+    def __init__(self, items: List[TreeNode]):
+        self.items = items
+
+    @classmethod
+    def from_string(
+        cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
+    ) -> TodoList:
+        current_level = 0
+        insert_point = TreeNode("root")
+        node = insert_point
+        for line in s.splitlines():
+            try:
+                node = node_from_str(line, node)
+                if node is None:
+                    continue
+                if node.level > current_level:
+                    insert_point = insert_point.last_child()
+                elif node._level < current_level:
+                    for _ in range(current_level - node.level):
+                        insert_point = insert_point.parent
+                current_level = node.level
+                insert_point.add_child(node)
+            except ValueError as e:
+                continue
+
+        insert_point.change_level(-1)
+        return TodoList(insert_point.root().children)
+
+    def __str__(self) -> str:
+        return "".join([str(n) for n in self.items])
