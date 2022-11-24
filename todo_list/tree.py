@@ -64,7 +64,7 @@ class TreeNode:
 
 
 def tree_nodes_from_string(
-    s: str, node_from_str: Callable[[str, TreeNode], TreeNode]
+    s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
 ) -> List[TreeNode]:
     current_level = 0
     insert_point = TreeNode("root")
@@ -72,6 +72,8 @@ def tree_nodes_from_string(
     for line in s.splitlines():
         try:
             node = node_from_str(line, node)
+            if node is None:
+                continue
             if node.level > current_level:
                 insert_point = insert_point.last_child()
             elif node._level < current_level:

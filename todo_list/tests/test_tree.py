@@ -22,3 +22,22 @@ def test_add_tree_nodes():
     assert branch1.root() == root
     assert branch2.root() == root
     assert leaf.root() == root
+
+def test_change_level():
+    root = TreeNode("root")
+    branch1 = TreeNode("branch1")
+    branch2 = TreeNode("branch2")
+    leaf1 = TreeNode("leaf1")
+    leaf2 = TreeNode("leaf2")
+    root.add_child(branch1)
+    root.add_child(branch2)
+    branch1.add_child(leaf1)
+    leaf1.add_child(leaf2)
+
+    root.change_level(-1)
+
+    assert root.level == -1
+    assert branch1.level == 0
+    assert branch2.level == 0
+    assert leaf1.level == 1
+    assert leaf2.level == 2

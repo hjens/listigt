@@ -55,3 +55,20 @@ def test_to_and_from_str():
     tree_from_str = tree_nodes_from_string(tree_as_str, TodoItem.tree_node_from_str)
 
     assert tree_from_str[0] == root
+
+
+def test_build_large_tree_with_subtitle():
+    s = \
+"""- Item 1
+  - Item 1.1
+  "Subtitle"
+    - [COMPLETE] Item 1.1.1
+    - Item 1.1.2
+  - Item 1.2
+    - Item 1.2.1
+     - Item 1.2.1.1
+- Item 2"""
+    tree_nodes = tree_nodes_from_string(s, TodoItem.tree_node_from_str)
+    assert len(tree_nodes) == 2
+    assert tree_nodes[0].children[0].data.text == "Item 1.1"
+    assert tree_nodes[0].children[0].data.subtitle == "Subtitle"
