@@ -1,16 +1,14 @@
+from ui import ui
 from todo_list import tree, todo_list
-
-FILENAME = "test.txt"
-
-
-with open(FILENAME) as f:
-    list = tree.tree_nodes_from_string(f.read(), todo_list.TodoItem.tree_node_from_str, log=False)
+from view_model import view_model
 
 
-list_as_str = "".join([f"{i}" for i in list])
+def main():
+    filename = "small_test.txt"
+    with open(filename) as f:
+        todo_items = tree.tree_nodes_from_string(f.read(), todo_list.TodoItem.tree_node_from_str)
+    vm = view_model.ViewModel(todo_items)
+    ui.start_ui(vm)
 
-list2 = tree.tree_nodes_from_string(list_as_str, todo_list.TodoItem.tree_node_from_str, log=True)
-
-#list_as_str2 = "".join([f"{i}" for i in list2])
-
-#print(list_as_str2)
+if __name__ == "__main__":
+    main()
