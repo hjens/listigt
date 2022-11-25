@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, List, Generator
+from typing import Optional, TypeVar, List, Generator, Callable
 import uuid
 
 T = TypeVar("T")
@@ -14,10 +14,17 @@ class TreeNode:
         self._level: int = level
         self._id = uuid.uuid1()
 
-    def add_child(self, child: TreeNode):
-        self._children.append(child)
+    def add_child(self, child: TreeNode, after_child: Optional[TreeNode] = None):
+        if after_child:
+            index = self.children.index(after_child)
+            self.children.insert(index + 1, child)
+        else:
+            self._children.append(child)
         child._level = self._level + 1
         child._parent = self
+
+    def add_sibling(self, new_node: TreeNode):
+        self.parent.add_child(new_node, after_child=self)
 
     def remove_node(self, node: TreeNode):
         if node in self._children:
@@ -32,14 +39,36 @@ class TreeNode:
     def last_child(self) -> TreeNode:
         return self.children[-1]
 
+    def node_after(self, node: TreeNode) -> TreeNode:
+        generator = self.gen_all_nodes()
+        for item in generator:
+            if item == node:
+                try:
+                    return next(generator)
+                except StopIteration:
+                    return self.children[0]
+        assert False, "This should not happen"
+
+    def node_before(self, node: TreeNode) -> TreeNode:
+        # TODO: this could be optimized
+        all_items = list(self.gen_all_nodes())
+        generator = reversed(all_items)
+        for item in generator:
+            if item == node:
+                try:
+                    return next(generator)
+                except StopIteration:
+                    return all_items[-1]
+        assert False, "This should not happen"
+
     def change_level(self, delta: int):
         self._level += delta
         for child in self.children:
             child.change_level(delta)
 
     def gen_all_nodes(self) -> Generator[TreeNode]:
-        yield self
         for child in self.children:
+            yield child
             for node in child.gen_all_nodes():
                 yield node
 
@@ -84,3 +113,28 @@ class TreeNode:
             if not child.is_equivalent_to(other_child):
                 return False
         return True
+
+    @classmethod
+    def from_string(
+            cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
+    ) -> TreeNode:
+        current_level = 0
+        insert_point = TreeNode("root")
+        node = insert_point
+        for line in s.splitlines():
+            try:
+                node = node_from_str(line, node)
+                if node is None:
+                    continue
+                if node.level > current_level:
+                    insert_point = insert_point.last_child()
+                elif node._level < current_level:
+                    for _ in range(current_level - node.level):
+                        insert_point = insert_point.parent
+                current_level = node.level
+                insert_point.add_child(node)
+            except ValueError as e:
+                continue
+
+        insert_point.change_level(-1)
+        return insert_point
