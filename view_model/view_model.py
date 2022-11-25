@@ -37,6 +37,9 @@ class ViewModel:
     def start_insert(self):
         self._is_inserting = True
 
+    def cancel_insert(self):
+        self._is_inserting = False
+
     def insertion_index(self) -> int:
         for index, item in enumerate(self.todo_list.gen_all_items()):
             if item == self.selected_node:
