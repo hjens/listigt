@@ -48,5 +48,6 @@ class ViewModel:
         return self._is_inserting
 
     def insert_item(self, item_text: str):
-        self.selected_node.add_child(TreeNode(data=TodoItem(item_text)))
+        new_node = TreeNode(data=TodoItem(item_text))
+        self.todo_list.add_node_as_sibling(node=self.selected_node, new_node=new_node)
         self._is_inserting = False

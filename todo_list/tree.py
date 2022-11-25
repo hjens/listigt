@@ -42,6 +42,9 @@ class TreeNode:
     def level(self):
         return self._level
 
+    def set_level(self, new_level: int):
+        self._level = new_level
+
     @property
     def children(self) -> List[TreeNode]:
         return self._children
