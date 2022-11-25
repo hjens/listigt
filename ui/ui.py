@@ -33,7 +33,8 @@ def start_ui(vm: view_model.ViewModel):
         ), animate=False)
 
         def handle_key(key):
+            if todo_item_tree.handle_key(key):
+                return True
             if key == "q":
                 manager.stop()
-            todo_item_tree.handle_key(key)
         manager.handle_key = handle_key
