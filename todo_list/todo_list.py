@@ -43,14 +43,14 @@ class TodoList:
     def __init__(self, items: List[TreeNode]):
         self.items = items
 
-    def add_node_as_sibling(self, node: TreeNode, new_node: TreeNode):
-        if node.parent is None:
+    def add_item_after(self, item: TreeNode, new_item: TreeNode):
+        if item.parent is None:
             items = self.items
         else:
-            items = node.parent.children
-        index = items.index(node)
-        new_node.set_level(items[0].level)
-        items.insert(index + 1, new_node)
+            items = item.parent.children
+        index = items.index(item)
+        new_item.set_level(items[0].level)
+        items.insert(index + 1, new_item)
 
     def gen_all_items(self) -> Generator[TreeNode]:
         for item in self.items:

@@ -14,7 +14,7 @@ from todo_list.tree import TreeNode
 )
 def test_tree_node_from_str(input, expected):
     result = TodoItem.tree_node_from_str(input, last_node=None)
-    assert result == expected
+    assert result.equivalent(expected)
 
 
 @pytest.mark.parametrize(
@@ -54,7 +54,7 @@ def test_to_and_from_str():
 
     list_from_str = TodoList.from_string(tree_as_str, TodoItem.tree_node_from_str)
 
-    assert list_from_str.items[0] == root
+    assert list_from_str.items[0].equivalent(root)
 
 
 def test_build_large_tree_with_subtitle():

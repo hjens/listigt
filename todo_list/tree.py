@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, List, Callable, Generator
+from typing import Optional, TypeVar, List, Generator
+import uuid
 
 T = TypeVar("T")
 
@@ -11,6 +12,7 @@ class TreeNode:
         self._children: List[TreeNode] = []
         self._parent: Optional[TreeNode] = None
         self._level: int = level
+        self._id = uuid.uuid1()
 
     def add_child(self, child: TreeNode):
         self._children.append(child)
@@ -64,11 +66,14 @@ class TreeNode:
         return s
 
     def __eq__(self, other) -> bool:
+        return self._id == other._id
+
+    def equivalent(self, other) -> bool:
         data_equal = self.data == other.data
         level_equal = self._level == other._level
         if (not data_equal) or (not level_equal):
             return False
         for child, other_child in zip(self.children, other.children):
-            if not child == other_child:
+            if not child.equivalent(other_child):
                 return False
         return True

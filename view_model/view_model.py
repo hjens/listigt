@@ -49,5 +49,5 @@ class ViewModel:
 
     def insert_item(self, item_text: str):
         new_node = TreeNode(data=TodoItem(item_text))
-        self.todo_list.add_node_as_sibling(node=self.selected_node, new_node=new_node)
+        self.todo_list.add_item_after(item=self.selected_node, new_item=new_node)
         self._is_inserting = False
