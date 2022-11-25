@@ -48,7 +48,7 @@ class TodoList:
             for node in item.gen_all_nodes():
                 yield node
 
-    def next_item(self, node: TreeNode) -> TreeNode:
+    def node_after(self, node: TreeNode) -> TreeNode:
         # TODO: this could be optimized
         generator = self.gen_all_items()
         for item in generator:
@@ -59,7 +59,7 @@ class TodoList:
                     return self.items[0]
         assert False, "This should not happen"
 
-    def previous_item(self, node: TreeNode) -> TreeNode:
+    def node_before(self, node: TreeNode) -> TreeNode:
         # TODO: this could be optimized
         all_items = list(self.gen_all_items())
         generator = reversed(all_items)

@@ -84,10 +84,10 @@ def test_next_item():
 
     list_from_items = TodoList([root1, root2])
 
-    assert list_from_items.next_item(root1) == leaf1
-    assert list_from_items.next_item(leaf1) == root2
-    assert list_from_items.next_item(root2) == leaf2
-    assert list_from_items.next_item(leaf2) == root1
+    assert list_from_items.node_after(root1) == leaf1
+    assert list_from_items.node_after(leaf1) == root2
+    assert list_from_items.node_after(root2) == leaf2
+    assert list_from_items.node_after(leaf2) == root1
 
 def test_previous_item():
     root1 = TreeNode(TodoItem("root1"))
@@ -99,7 +99,7 @@ def test_previous_item():
 
     list_from_items = TodoList([root1, root2])
 
-    assert list_from_items.previous_item(root2) == leaf1
-    assert list_from_items.previous_item(leaf1) == root1
-    assert list_from_items.previous_item(leaf2) == root2
-    assert list_from_items.previous_item(root1) == leaf2
+    assert list_from_items.node_before(root2) == leaf1
+    assert list_from_items.node_before(leaf1) == root1
+    assert list_from_items.node_before(leaf2) == root2
+    assert list_from_items.node_before(root1) == leaf2
