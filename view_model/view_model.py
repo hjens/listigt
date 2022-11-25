@@ -6,7 +6,7 @@ from todo_list.tree import TreeNode
 
 class ViewModel:
     def __init__(self, tree_root: TreeNode):
-        self.tree_root = tree_root
+        self.tree_root: TreeNode = tree_root
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
@@ -32,7 +32,8 @@ class ViewModel:
 
     def set_as_root(self, node):
         self.tree_root = node
-        self.selected_node = self.tree_root.first_child()
+        if self.tree_root.children:
+            self.selected_node = self.tree_root.first_child()
 
     def move_root_upwards(self):
         if self.tree_root.parent:

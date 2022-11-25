@@ -140,5 +140,6 @@ class TreeNode:
             except ValueError as e:
                 continue
 
-        insert_point.change_level(-1)
-        return insert_point
+        root = insert_point.root()
+        root.change_level(-1)
+        return root

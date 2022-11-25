@@ -41,7 +41,7 @@ def test_tree_to_and_from_str():
 
     tree_from_str = TreeNode.from_string(tree_as_str, TodoItem.tree_node_from_str)
 
-    assert tree_from_str.is_equivalent_to(root)
+    assert tree_from_str.first_child().is_equivalent_to(root)
 
 
 def test_build_tree_with_subtitle():
