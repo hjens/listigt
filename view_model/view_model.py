@@ -30,6 +30,15 @@ class ViewModel:
     def select_previous(self):
         self.selected_node = self.tree_root.node_before(self.selected_node)
 
+    def set_as_root(self, node):
+        self.tree_root = node
+        self.selected_node = self.tree_root.first_child()
+
+    def move_root_upwards(self):
+        if self.tree_root.parent:
+            self.selected_node = self.tree_root
+            self.tree_root = self.tree_root.parent
+
     def start_insert(self):
         self._is_inserting = True
 

@@ -77,6 +77,14 @@ class TodoItemTree(ptg.Container):
             self._view_model.delete_item()
             self._update_widgets()
             return True
+        elif key == "l":
+            self._view_model.set_as_root(self._view_model.selected_node)
+            self._update_widgets()
+            return True
+        elif key == "h":
+            self._view_model.move_root_upwards()
+            self._update_widgets()
+            return True
 
         return False
 

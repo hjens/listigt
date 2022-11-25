@@ -33,11 +33,15 @@ class TreeNode:
         for child in self.children:
             child.remove_node(node)
 
-    def first_child(self) -> TreeNode:
-        return self.children[0]
+    def first_child(self) -> Optional[TreeNode]:
+        if self.children:
+            return self.children[0]
+        return None
 
-    def last_child(self) -> TreeNode:
-        return self.children[-1]
+    def last_child(self) -> Optional[TreeNode]:
+        if self.children:
+            return self.children[-1]
+        return None
 
     def node_after(self, node: TreeNode) -> TreeNode:
         generator = self.gen_all_nodes()
