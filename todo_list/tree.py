@@ -68,12 +68,12 @@ class TreeNode:
     def __eq__(self, other) -> bool:
         return self._id == other._id
 
-    def equivalent(self, other) -> bool:
+    def is_equivalent_to(self, other) -> bool:
         data_equal = self.data == other.data
         level_equal = self._level == other._level
         if (not data_equal) or (not level_equal):
             return False
         for child, other_child in zip(self.children, other.children):
-            if not child.equivalent(other_child):
+            if not child.is_equivalent_to(other_child):
                 return False
         return True

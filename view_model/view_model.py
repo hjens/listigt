@@ -22,10 +22,7 @@ class ViewModel:
                 return f"► {indent}{text}"
             return f"- {indent}{text}"
 
-        lines = [
-            text_for_item(item)
-            for item in self.todo_list.gen_all_items()
-        ]
+        lines = [text_for_item(item) for item in self.todo_list.gen_all_items()]
         return lines
 
     def select_next(self):
@@ -54,3 +51,4 @@ class ViewModel:
         new_node = TreeNode(data=TodoItem(item_text))
         self.todo_list.add_item_after(item=self.selected_node, new_item=new_node)
         self._is_inserting = False
+
