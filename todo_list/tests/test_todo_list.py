@@ -71,4 +71,35 @@ def test_build_large_tree_with_subtitle():
     list = TodoList.from_string(s, TodoItem.tree_node_from_str)
     assert len(list.items) == 2
     assert list.items[0].children[0].data.text == "Item 1.1"
-    assert list.item[0].children[0].data.subtitle == "Subtitle"
+    assert list.items[0].children[0].data.subtitle == "Subtitle"
+
+
+def test_next_item():
+    root1 = TreeNode(TodoItem("root1"))
+    root2 = TreeNode(TodoItem("root1"))
+    leaf1 = TreeNode(TodoItem("leaf1"))
+    leaf2 = TreeNode(TodoItem("leaf2"))
+    root1.add_child(leaf1)
+    root2.add_child(leaf2)
+
+    list_from_items = TodoList([root1, root2])
+
+    assert list_from_items.next_item(root1) == leaf1
+    assert list_from_items.next_item(leaf1) == root2
+    assert list_from_items.next_item(root2) == leaf2
+    assert list_from_items.next_item(leaf2) == root1
+
+def test_previous_item():
+    root1 = TreeNode(TodoItem("root1"))
+    root2 = TreeNode(TodoItem("root1"))
+    leaf1 = TreeNode(TodoItem("leaf1"))
+    leaf2 = TreeNode(TodoItem("leaf2"))
+    root1.add_child(leaf1)
+    root2.add_child(leaf2)
+
+    list_from_items = TodoList([root1, root2])
+
+    assert list_from_items.previous_item(root2) == leaf1
+    assert list_from_items.previous_item(leaf1) == root1
+    assert list_from_items.previous_item(leaf2) == root2
+    assert list_from_items.previous_item(root1) == leaf2

@@ -48,6 +48,29 @@ class TodoList:
             for node in item.gen_all_nodes():
                 yield node
 
+    def next_item(self, node: TreeNode) -> TreeNode:
+        # TODO: this could be optimized
+        generator = self.gen_all_items()
+        for item in generator:
+            if item == node:
+                try:
+                    return next(generator)
+                except StopIteration:
+                    return self.items[0]
+        assert False, "This should not happen"
+
+    def previous_item(self, node: TreeNode) -> TreeNode:
+        # TODO: this could be optimized
+        all_items = list(self.gen_all_items())
+        generator = reversed(all_items)
+        for item in generator:
+            if item == node:
+                try:
+                    return next(generator)
+                except StopIteration:
+                    return all_items[-1]
+        assert False, "This should not happen"
+
     @classmethod
     def from_string(
         cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]

@@ -17,6 +17,9 @@ class TreeNode:
         child._level = self._level + 1
         child._parent = self
 
+    def first_child(self) -> TreeNode:
+        return self.children[0]
+
     def last_child(self) -> TreeNode:
         return self.children[-1]
 
