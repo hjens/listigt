@@ -19,6 +19,13 @@ class TreeNode:
         child._level = self._level + 1
         child._parent = self
 
+    def remove_node(self, node: TreeNode):
+        if node in self._children:
+            self._children.remove(node)
+            return
+        for child in self.children:
+            child.remove_node(node)
+
     def first_child(self) -> TreeNode:
         return self.children[0]
 

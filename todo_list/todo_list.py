@@ -52,6 +52,13 @@ class TodoList:
         new_item.set_level(items[0].level)
         items.insert(index + 1, new_item)
 
+    def remove_item(self, item_to_remove: TreeNode):
+        if item_to_remove in self.items:
+            self.items.remove(item_to_remove)
+            return
+        for item in self.items:
+            item.remove_node(item_to_remove)
+
     def gen_all_items(self) -> Generator[TreeNode]:
         for item in self.items:
             for node in item.gen_all_nodes():

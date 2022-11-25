@@ -73,6 +73,10 @@ class TodoItemTree(ptg.Container):
             self._view_model.start_insert()
             self._update_widgets()
             return True
+        elif key == "x":
+            self._view_model.delete_item()
+            self._update_widgets()
+            return True
 
         return False
 

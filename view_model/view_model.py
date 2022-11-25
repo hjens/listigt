@@ -52,3 +52,7 @@ class ViewModel:
         self.todo_list.add_item_after(item=self.selected_node, new_item=new_node)
         self._is_inserting = False
 
+    def delete_item(self):
+        node_to_remove = self.selected_node
+        self.select_previous()
+        self.todo_list.remove_item(node_to_remove)

@@ -58,3 +58,23 @@ def test_gen_all_items():
     assert first == root
     assert second == branch
     assert third == leaf
+
+
+def test_remove_child():
+    root = TreeNode("root")
+    branch1 = TreeNode("branch1")
+    branch2 = TreeNode("branch2")
+    leaf1 = TreeNode("leaf1")
+    leaf2 = TreeNode("leaf2")
+    root.add_child(branch1)
+    root.add_child(branch2)
+    branch1.add_child(leaf1)
+    leaf1.add_child(leaf2)
+
+    assert leaf1 in branch1.children
+    root.remove_node(leaf1)
+    assert leaf1 not in branch1.children
+
+    assert branch2 in root.children
+    root.remove_node(branch2)
+    assert branch2 not in root.children
