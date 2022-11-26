@@ -26,11 +26,13 @@ def start_ui(vm: view_model.ViewModel):
 
         todo_item_tree = widgets.TodoItemTree(vm)
 
-        manager.add(ptg.Window(
+        body_window =ptg.Window(
             todo_item_tree,
             vertical_align=VerticalAlignment.TOP,
-            assign="body"
-        ), animate=False)
+            assign="body",
+        )
+
+        manager.add(body_window, animate=False)
 
         def handle_key(key):
             if todo_item_tree.handle_key(key):

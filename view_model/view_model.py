@@ -10,12 +10,15 @@ class ViewModel:
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
-        self._num_items_on_screen = 10
-        self._first_item_on_screen = 0
-        self._last_item_on_screen = self._num_items_on_screen
+        self.set_window_height(32)  # TODO: this should not be hardcoded
 
         if tree_root.children:
             self.selected_node = tree_root.first_child()
+
+    def set_window_height(self, height: int):
+        self._num_items_on_screen = height
+        self._first_item_on_screen = 0
+        self._last_item_on_screen = self._num_items_on_screen
 
     def item_titles(self) -> List[str]:
         def text_for_item(item):
