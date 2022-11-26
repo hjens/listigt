@@ -94,5 +94,5 @@ class TodoItemTree(ptg.Container):
             for item in self._view_model.item_titles()
         ]
         if self._view_model.is_inserting:
-            widgets.insert(self._view_model.insertion_index(), self.input_field)
+            widgets.insert(self._view_model.index_of_selected_node() + 1, self.input_field)
         self.set_widgets(widgets)

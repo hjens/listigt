@@ -10,6 +10,10 @@ class ViewModel:
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
+        self._num_items_on_screen = 10
+        self._first_item_on_screen = 0
+        self._last_item_on_screen = self._num_items_on_screen
+
         if tree_root.children:
             self.selected_node = tree_root.first_child()
 
@@ -22,7 +26,8 @@ class ViewModel:
             return f"- {indent}{text}"
 
         lines = [text_for_item(item) for item in self.tree_root.gen_all_nodes()]
-        return lines
+        self._update_scrolling(len(lines))
+        return lines[self._first_item_on_screen:self._last_item_on_screen]
 
     def select_next(self):
         self.selected_node = self.tree_root.node_after(self.selected_node)
@@ -46,10 +51,10 @@ class ViewModel:
     def cancel_insert(self):
         self._is_inserting = False
 
-    def insertion_index(self) -> int:
+    def index_of_selected_node(self) -> int:
         for index, item in enumerate(self.tree_root.gen_all_nodes()):
             if item == self.selected_node:
-                return index + 1
+                return index
         return 0
 
     @property
@@ -65,3 +70,16 @@ class ViewModel:
         node_to_remove = self.selected_node
         self.select_previous()
         self.tree_root.remove_node(node_to_remove)
+
+    def _update_scrolling(self, num_lines: int):
+        if num_lines <= self._num_items_on_screen:
+            self._first_item_on_screen = 0
+            self._last_item_on_screen = num_lines
+
+        selection_index = self.index_of_selected_node()
+        if selection_index < self._first_item_on_screen:
+            self._first_item_on_screen = selection_index
+            self._last_item_on_screen = min(self._first_item_on_screen + self._num_items_on_screen, num_lines)
+        elif selection_index >= self._last_item_on_screen:
+            self._last_item_on_screen = selection_index + 1
+            self._first_item_on_screen = max(0, self._last_item_on_screen - self._num_items_on_screen)
