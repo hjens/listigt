@@ -40,7 +40,7 @@ class TodoItemTree(ptg.Container):
     def __init__(self, vm: view_model.ViewModel, **attrs: Any):
         super().__init__(**attrs)
         self._view_model = vm
-        self._update_widgets()
+        self._create_widgets()
 
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
@@ -88,7 +88,7 @@ class TodoItemTree(ptg.Container):
 
         return False
 
-    def _update_widgets(self):
+    def _create_widgets(self):
         widgets = [
             ptg.Label(item, parent_align=HorizontalAlignment.LEFT)
             for item in self._view_model.item_titles()
@@ -96,3 +96,8 @@ class TodoItemTree(ptg.Container):
         if self._view_model.is_inserting:
             widgets.insert(self._view_model.index_of_selected_node() + 1, self.input_field)
         self.set_widgets(widgets)
+
+    def _update_widgets(self):
+        for widget, title in zip(self._widgets, self._view_model.item_titles()):
+            widget.value = title
+
