@@ -47,6 +47,8 @@ class ViewModel:
         if self.tree_root.parent:
             self.selected_node = self.tree_root
             self.tree_root = self.tree_root.parent
+            self._first_item_on_screen = self.index_of_selected_node()
+            self._last_item_on_screen = self._first_item_on_screen + self._num_items_on_screen
 
     def start_insert(self):
         self._is_inserting = True
@@ -82,7 +84,11 @@ class ViewModel:
         selection_index = self.index_of_selected_node()
         if selection_index < self._first_item_on_screen:
             self._first_item_on_screen = selection_index
-            self._last_item_on_screen = min(self._first_item_on_screen + self._num_items_on_screen, num_lines)
+            self._last_item_on_screen = min(
+                self._first_item_on_screen + self._num_items_on_screen, num_lines
+            )
         elif selection_index >= self._last_item_on_screen:
             self._last_item_on_screen = selection_index + 1
-            self._first_item_on_screen = max(0, self._last_item_on_screen - self._num_items_on_screen)
+            self._first_item_on_screen = max(
+                0, self._last_item_on_screen - self._num_items_on_screen
+            )
