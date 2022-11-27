@@ -32,6 +32,9 @@ class ViewModel:
         self._update_scrolling(len(lines))
         return lines[self._first_item_on_screen:self._last_item_on_screen]
 
+    def list_title(self) -> str:
+        return self.tree_root.data.text
+
     def select_next(self):
         self.selected_node = self.tree_root.node_after(self.selected_node)
 

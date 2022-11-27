@@ -40,7 +40,12 @@ class TodoItemTree(ptg.Container):
     def __init__(self, vm: view_model.ViewModel, **attrs: Any):
         super().__init__(**attrs)
         self._view_model = vm
-        self._create_widgets()
+        self._item_labels = [
+            ptg.Label(item, parent_align=HorizontalAlignment.LEFT)
+            for item in self._view_model.item_titles()
+        ]
+        self._title_label = ptg.Label(vm.list_title(), parent_align=HorizontalAlignment.LEFT)
+        self.set_widgets([self._title_label, *self._item_labels])
 
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
@@ -89,23 +94,16 @@ class TodoItemTree(ptg.Container):
 
         return False
 
-    def _create_widgets(self):
-        widgets = [
-            ptg.Label(item, parent_align=HorizontalAlignment.LEFT)
-            for item in self._view_model.item_titles()
-        ]
-        self.set_widgets(widgets)
-
     def _update_widgets(self):
         item_titles = self._view_model.item_titles()
-        for index, widget in enumerate(self._widgets):
-            if not isinstance(widget, ptg.Label):
-                continue
+        for index, label in enumerate(self._item_labels):
             if index < len(item_titles):
-                widget.value = item_titles[index]
+                label.value = item_titles[index]
             else:
-                widget.value = ""
+                label.value = ""
 
-        has_input_field =  any([isinstance(w, ptg.InputField) for w in self._widgets])
-        if has_input_field and not self._view_model.is_inserting:
-            self._create_widgets()
+        self._title_label.value = f"[primary]{self._view_model.list_title().upper()}"
+
+        #has_input_field =  any([isinstance(w, ptg.InputField) for w in self._widgets])
+        #if has_input_field and not self._view_model.is_inserting:
+            #self._create_widgets()
