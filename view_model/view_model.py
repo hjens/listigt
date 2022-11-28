@@ -1,7 +1,16 @@
+from dataclasses import dataclass
 from typing import List, Optional
 
 from todo_list.todo_list import TodoItem
 from todo_list.tree import TreeNode
+
+
+@dataclass
+class ListItem:
+    text: str
+    indentation_level: int
+    is_selected: bool
+    has_children: bool
 
 
 class ViewModel:
@@ -20,21 +29,22 @@ class ViewModel:
         self._first_item_on_screen = 0
         self._last_item_on_screen = self._num_items_on_screen
 
-    def item_titles(self) -> List[str]:
-        def text_for_item(item):
-            indent = " " * item.level * 2
-            text = item.data.text
-            if item == self.selected_node:
-                return f"► {indent}{text}"
-            return f"- {indent}{text}"
+    def list_items(self) -> List[ListItem]:
+        def list_item_from_node(node):
+            return ListItem(
+                text=node.data.text,
+                indentation_level=node.level - self.tree_root.level,
+                is_selected=node == self.selected_node,
+                has_children=node.has_children()
+            )
 
-        lines = [text_for_item(item) for item in self.tree_root.gen_all_nodes()]
-        self._update_scrolling(len(lines))
-        return lines[self._first_item_on_screen:self._last_item_on_screen]
+        items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes()]
+        self._update_scrolling(len(items))
+        return items[self._first_item_on_screen : self._last_item_on_screen]
 
     def list_title(self) -> str:
         if self.tree_root == self.tree_root.root():
-            return ""
+            return "Toppnivå"
         return self.tree_root.data.text
 
     def select_next(self):
@@ -53,7 +63,9 @@ class ViewModel:
             self.selected_node = self.tree_root
             self.tree_root = self.tree_root.parent
             self._first_item_on_screen = self.index_of_selected_node()
-            self._last_item_on_screen = self._first_item_on_screen + self._num_items_on_screen
+            self._last_item_on_screen = (
+                self._first_item_on_screen + self._num_items_on_screen
+            )
 
     def start_insert(self):
         self._is_inserting = True

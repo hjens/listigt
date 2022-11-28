@@ -4,6 +4,7 @@ import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
 from view_model import view_model
+from view_model.view_model import ListItem
 
 
 class NewItemInput(ptg.InputField):
@@ -41,8 +42,8 @@ class TodoItemTree(ptg.Container):
         super().__init__(**attrs)
         self._view_model = vm
         self._item_labels = [
-            ptg.Label(item, parent_align=HorizontalAlignment.LEFT)
-            for item in self._view_model.item_titles()
+            ptg.Label(self._text_for_list_item(item), parent_align=HorizontalAlignment.LEFT)
+            for item in self._view_model.list_items()
         ]
         self._title_label = ptg.Label(vm.list_title(), parent_align=HorizontalAlignment.LEFT)
         self.set_widgets([self._title_label, *self._item_labels])
@@ -94,10 +95,10 @@ class TodoItemTree(ptg.Container):
         return False
 
     def _update_widgets(self):
-        item_titles = self._view_model.item_titles()
+        list_items = self._view_model.list_items()
         for index, label in enumerate(self._item_labels):
-            if index < len(item_titles):
-                label.value = item_titles[index]
+            if index < len(list_items):
+                label.value = self._text_for_list_item(list_items[index])
             else:
                 label.value = ""
 
@@ -108,4 +109,11 @@ class TodoItemTree(ptg.Container):
             self.set_widgets([w for w in self._widgets if w != self.input_field])
         elif self._view_model.is_inserting and not has_input_field:
             self._widgets.insert(self._view_model.index_of_selected_node() + 2, self.input_field)
+
+    def _text_for_list_item(self, item: ListItem) -> str:
+        indent = "  " * item.indentation_level
+        style = "[inverse]" if item.is_selected else ""
+        symbol = "▼" if item.has_children else "•"
+        # ►
+        return indent + style + symbol + " " + item.text
 

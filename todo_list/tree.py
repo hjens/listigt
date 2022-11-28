@@ -23,6 +23,9 @@ class TreeNode:
         child._level = self._level + 1
         child._parent = self
 
+    def has_children(self) -> bool:
+        return len(self.children) > 0
+
     def add_sibling(self, new_node: TreeNode):
         self.parent.add_child(new_node, after_child=self)
 
