@@ -34,7 +34,7 @@ class ViewModel:
         def list_item_from_node(node):
             return ListItem(
                 text=node.data.text,
-                indentation_level=node.level - self.tree_root.level,
+                indentation_level=node.level - self.tree_root.level - 1,
                 is_selected=node == self.selected_node,
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
