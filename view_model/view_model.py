@@ -29,8 +29,7 @@ class ViewModel:
 
     def save_to_file(self):
         with open(self._save_file, "w") as f:
-            for item in self.tree_root.children:
-                f.write(str(item))
+            f.write("\n".join([str(item) for item in self.tree_root.children]))
 
     def load_from_file(self) -> TreeNode:
         with open(self._save_file) as f:
@@ -40,6 +39,10 @@ class ViewModel:
         self._num_items_on_screen = height
         self._first_item_on_screen = 0
         self._last_item_on_screen = self._num_items_on_screen
+
+    @property
+    def num_items_on_screen(self) -> int:
+        return self._num_items_on_screen
 
     def list_items(self) -> List[ListItem]:
         def list_item_from_node(node):
@@ -108,6 +111,7 @@ class ViewModel:
         self.selected_node.add_sibling(new_node)
         self._is_inserting = False
         self.selected_node = new_node
+        self._last_item_on_screen += 1
 
         self.save_to_file()
 

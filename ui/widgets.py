@@ -42,15 +42,14 @@ class TodoItemTree(ptg.Container):
         super().__init__(**attrs)
         self._view_model = vm
         self._item_labels = [
-            ptg.Label(
-                self._text_for_list_item(item), parent_align=HorizontalAlignment.LEFT
-            )
-            for item in self._view_model.list_items()
+            ptg.Label("", parent_align=HorizontalAlignment.LEFT)
+            for _ in range(self._view_model.num_items_on_screen)
         ]
         self._title_label = ptg.Label(
             vm.list_title(), parent_align=HorizontalAlignment.LEFT
         )
         self.set_widgets([self._title_label, *self._item_labels])
+        self._update_widgets()
 
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
@@ -93,7 +92,9 @@ class TodoItemTree(ptg.Container):
             else:
                 label.value = ""
 
-        self._title_label.value = f"[bold primary]{self._view_model.list_title().upper()}"
+        self._title_label.value = (
+            f"[bold primary]{self._view_model.list_title().upper()}"
+        )
 
         has_input_field = any([isinstance(w, ptg.InputField) for w in self._widgets])
         if has_input_field and not self._view_model.is_inserting:
@@ -102,12 +103,14 @@ class TodoItemTree(ptg.Container):
             self._widgets.insert(
                 self._view_model.index_of_selected_node() + 2, self.input_field
             )
-            indent = list_items[self._view_model.index_of_selected_node()].indentation_level
+            indent = list_items[
+                self._view_model.index_of_selected_node()
+            ].indentation_level
             self.input_field.prompt = "  " * indent + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:
         indent = "  " * item.indentation_level
-        highlighted = (item.is_selected and not self._view_model.is_inserting)
+        highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
         symbol = "▼" if item.has_children else "•"
         completed_style = "[strikethrough]" if item.is_completed else ""
