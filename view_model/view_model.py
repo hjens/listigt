@@ -94,6 +94,7 @@ class ViewModel:
         new_node = TreeNode(data=TodoItem(item_text))
         self.selected_node.add_sibling(new_node)
         self._is_inserting = False
+        self.selected_node = new_node
 
     def delete_item(self):
         node_to_remove = self.selected_node
