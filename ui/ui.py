@@ -22,7 +22,7 @@ def start_ui(vm: view_model.ViewModel):
 
         body_window =ptg.Window(
             todo_item_tree,
-            vertical_align=VerticalAlignment.CENTER,
+            vertical_align=VerticalAlignment.TOP,
             assign="body",
         )
 
