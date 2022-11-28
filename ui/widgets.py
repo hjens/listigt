@@ -76,7 +76,6 @@ class TodoItemTree(ptg.Container):
             return True
         elif key == "n":
             self._view_model.start_insert()
-            self._widgets.insert(self._view_model.index_of_selected_node() + 1, self.input_field)
             self._update_widgets()
             return True
         elif key == "x":
@@ -104,6 +103,9 @@ class TodoItemTree(ptg.Container):
 
         self._title_label.value = f"[primary]{self._view_model.list_title().upper()}"
 
-        #has_input_field =  any([isinstance(w, ptg.InputField) for w in self._widgets])
-        #if has_input_field and not self._view_model.is_inserting:
-            #self._create_widgets()
+        has_input_field =  any([isinstance(w, ptg.InputField) for w in self._widgets])
+        if has_input_field and not self._view_model.is_inserting:
+            self.set_widgets([w for w in self._widgets if w != self.input_field])
+        elif self._view_model.is_inserting and not has_input_field:
+            self._widgets.insert(self._view_model.index_of_selected_node() + 2, self.input_field)
+

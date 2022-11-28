@@ -33,6 +33,8 @@ class ViewModel:
         return lines[self._first_item_on_screen:self._last_item_on_screen]
 
     def list_title(self) -> str:
+        if self.tree_root == self.tree_root.root():
+            return ""
         return self.tree_root.data.text
 
     def select_next(self):
