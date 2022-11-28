@@ -20,7 +20,7 @@ class ViewModel:
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
-        self.set_window_height(32)  # TODO: this should not be hardcoded
+        self.set_window_height(0)
 
         if tree_root.children:
             self.selected_node = tree_root.first_child()
