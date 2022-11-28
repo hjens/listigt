@@ -93,7 +93,7 @@ class TodoItemTree(ptg.Container):
             else:
                 label.value = ""
 
-        self._title_label.value = f"[primary]{self._view_model.list_title().upper()}"
+        self._title_label.value = f"[bold primary]{self._view_model.list_title().upper()}"
 
         has_input_field = any([isinstance(w, ptg.InputField) for w in self._widgets])
         if has_input_field and not self._view_model.is_inserting:
