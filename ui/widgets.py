@@ -61,9 +61,6 @@ class TodoItemTree(ptg.Container):
         )
 
     def handle_key(self, key: str) -> bool:
-        if super().handle_key(key):
-            return True
-
         if self._view_model.is_inserting:
             return self.input_field.handle_key(key)
 
