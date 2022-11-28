@@ -11,6 +11,7 @@ class ListItem:
     indentation_level: int
     is_selected: bool
     has_children: bool
+    is_completed: bool
 
 
 class ViewModel:
@@ -35,7 +36,8 @@ class ViewModel:
                 text=node.data.text,
                 indentation_level=node.level - self.tree_root.level,
                 is_selected=node == self.selected_node,
-                has_children=node.has_children()
+                has_children=node.has_children(),
+                is_completed=node.data.complete,
             )
 
         items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes()]
@@ -72,6 +74,9 @@ class ViewModel:
 
     def cancel_insert(self):
         self._is_inserting = False
+
+    def toggle_completed(self):
+        self.selected_node.data.complete = not self.selected_node.data.complete
 
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self.tree_root.gen_all_nodes()):

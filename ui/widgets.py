@@ -75,6 +75,7 @@ class TodoItemTree(ptg.Container):
             "x": lambda: self._view_model.delete_item(),
             "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
             "h": lambda: self._view_model.move_root_upwards(),
+            ptg.keys.ENTER: lambda: self._view_model.toggle_completed(),
         }
 
         if key in key_handlers:
@@ -106,5 +107,6 @@ class TodoItemTree(ptg.Container):
         indent = "  " * item.indentation_level
         style = "[inverse]" if item.is_selected else ""
         symbol = "▼" if item.has_children else "•"
+        completed_style = "[strikethrough]" if item.is_completed else ""
         # ►
-        return indent + style + symbol + " " + item.text
+        return indent + style + completed_style + symbol + " " + item.text
