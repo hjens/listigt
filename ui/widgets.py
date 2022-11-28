@@ -12,7 +12,7 @@ class NewItemInput(ptg.InputField):
         self,
         on_submit: Callable[[str], None],
         on_cancel: Callable[[None], None],
-        **attrs: Any
+        **attrs: Any,
     ):
         super().__init__(**attrs)
         self.prompt = "New item: "
@@ -42,10 +42,14 @@ class TodoItemTree(ptg.Container):
         super().__init__(**attrs)
         self._view_model = vm
         self._item_labels = [
-            ptg.Label(self._text_for_list_item(item), parent_align=HorizontalAlignment.LEFT)
+            ptg.Label(
+                self._text_for_list_item(item), parent_align=HorizontalAlignment.LEFT
+            )
             for item in self._view_model.list_items()
         ]
-        self._title_label = ptg.Label(vm.list_title(), parent_align=HorizontalAlignment.LEFT)
+        self._title_label = ptg.Label(
+            vm.list_title(), parent_align=HorizontalAlignment.LEFT
+        )
         self.set_widgets([self._title_label, *self._item_labels])
 
         def on_new_item_submit(text):
@@ -64,28 +68,17 @@ class TodoItemTree(ptg.Container):
         if self._view_model.is_inserting:
             return self.input_field.handle_key(key)
 
-        if key == "j":
-            self._view_model.select_next()
-            self._update_widgets()
-            return True
-        elif key == "k":
-            self._view_model.select_previous()
-            self._update_widgets()
-            return True
-        elif key == "n":
-            self._view_model.start_insert()
-            self._update_widgets()
-            return True
-        elif key == "x":
-            self._view_model.delete_item()
-            self._update_widgets()
-            return True
-        elif key == "l":
-            self._view_model.set_as_root(self._view_model.selected_node)
-            self._update_widgets()
-            return True
-        elif key == "h":
-            self._view_model.move_root_upwards()
+        key_handlers = {
+            "j": lambda: self._view_model.select_next(),
+            "k": lambda: self._view_model.select_previous(),
+            "n": lambda: self._view_model.start_insert(),
+            "x": lambda: self._view_model.delete_item(),
+            "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
+            "h": lambda: self._view_model.move_root_upwards(),
+        }
+
+        if key in key_handlers:
+            key_handlers[key]()
             self._update_widgets()
             return True
 
@@ -101,11 +94,13 @@ class TodoItemTree(ptg.Container):
 
         self._title_label.value = f"[primary]{self._view_model.list_title().upper()}"
 
-        has_input_field =  any([isinstance(w, ptg.InputField) for w in self._widgets])
+        has_input_field = any([isinstance(w, ptg.InputField) for w in self._widgets])
         if has_input_field and not self._view_model.is_inserting:
             self.set_widgets([w for w in self._widgets if w != self.input_field])
         elif self._view_model.is_inserting and not has_input_field:
-            self._widgets.insert(self._view_model.index_of_selected_node() + 2, self.input_field)
+            self._widgets.insert(
+                self._view_model.index_of_selected_node() + 2, self.input_field
+            )
 
     def _text_for_list_item(self, item: ListItem) -> str:
         indent = "  " * item.indentation_level
@@ -113,4 +108,3 @@ class TodoItemTree(ptg.Container):
         symbol = "▼" if item.has_children else "•"
         # ►
         return indent + style + symbol + " " + item.text
-
