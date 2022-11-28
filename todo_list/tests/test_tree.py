@@ -67,6 +67,7 @@ def test_node_before():
     assert root.node_before(leaf1) == branch
     assert root.node_before(leaf2) == leaf1
 
+
 def test_change_level():
     root = TreeNode("root")
     branch1 = TreeNode("branch1")
@@ -121,6 +122,7 @@ def test_remove_child():
     root.remove_node(branch2)
     assert branch2 not in root.children
 
+
 def test_to_str():
     root = TreeNode("root")
     leaf1 = TreeNode("leaf1")
@@ -133,3 +135,23 @@ def test_to_str():
     result = str(root)
 
     assert result == expected
+
+
+def test_apply_to_children():
+    root = TreeNode("root")
+    branch = TreeNode("branch")
+    leaf1 = TreeNode("leaf1")
+    leaf2 = TreeNode("leaf2")
+    root.add_child(branch)
+    branch.add_child(leaf1)
+    branch.add_child(leaf2)
+
+    def complete(node):
+        node.data = "updated"
+
+    branch.apply_to_children(complete)
+
+    assert root.data == "root"
+    assert branch.data == "updated"
+    assert leaf1.data == "updated"
+    assert leaf2.data == "updated"

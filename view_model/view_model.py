@@ -76,7 +76,9 @@ class ViewModel:
         self._is_inserting = False
 
     def toggle_completed(self):
-        self.selected_node.data.complete = not self.selected_node.data.complete
+        def toogle_node(node):
+            node.data.complete = not node.data.complete
+        self.selected_node.apply_to_children(toogle_node)
 
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self.tree_root.gen_all_nodes()):
