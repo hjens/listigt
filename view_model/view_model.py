@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
 from todo_list.todo_list import TodoItem
@@ -15,15 +16,25 @@ class ListItem:
 
 
 class ViewModel:
-    def __init__(self, tree_root: TreeNode):
-        self.tree_root: TreeNode = tree_root
+    def __init__(self, save_file: Path):
+        self._save_file = save_file
+        self.tree_root = self.load_from_file()
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
         self.set_window_height(0)
 
-        if tree_root.children:
-            self.selected_node = tree_root.first_child()
+        if self.tree_root.children:
+            self.selected_node = self.tree_root.first_child()
+
+    def save_to_file(self):
+        with open(self._save_file, "w") as f:
+            for item in self.tree_root.children:
+                f.write(str(item))
+
+    def load_from_file(self) -> TreeNode:
+        with open(self._save_file) as f:
+            return TreeNode.from_string(f.read(), TodoItem.tree_node_from_str)
 
     def set_window_height(self, height: int):
         self._num_items_on_screen = height
@@ -80,6 +91,8 @@ class ViewModel:
             node.data.complete = not node.data.complete
         self.selected_node.apply_to_children(toogle_node)
 
+        self.save_to_file()
+
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self.tree_root.gen_all_nodes()):
             if item == self.selected_node:
@@ -96,10 +109,14 @@ class ViewModel:
         self._is_inserting = False
         self.selected_node = new_node
 
+        self.save_to_file()
+
     def delete_item(self):
         node_to_remove = self.selected_node
         self.select_previous()
         self.tree_root.remove_node(node_to_remove)
+
+        self.save_to_file()
 
     def _update_scrolling(self, num_lines: int):
         if num_lines <= self._num_items_on_screen:

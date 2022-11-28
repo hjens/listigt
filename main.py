@@ -1,13 +1,14 @@
+from pathlib import Path
+
 from ui import ui
 from view_model import view_model
 from todo_list import todo_list
 
+SAVE_FILE = Path("small_test.txt")
+
 
 def main():
-    filename = "small_test.txt"
-    with open(filename) as f:
-        saved_todo_list = todo_list.TreeNode.from_string(f.read(), todo_list.TodoItem.tree_node_from_str)
-    vm = view_model.ViewModel(saved_todo_list)
+    vm = view_model.ViewModel(SAVE_FILE)
     ui.start_ui(vm)
 
 if __name__ == "__main__":
