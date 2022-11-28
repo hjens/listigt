@@ -15,7 +15,7 @@ class NewItemInput(ptg.InputField):
         **attrs: Any,
     ):
         super().__init__(**attrs)
-        self.prompt = "New item: "
+        self.prompt = "• "
         self.on_submit = on_submit
         self.on_cancel = on_cancel
 
@@ -102,6 +102,8 @@ class TodoItemTree(ptg.Container):
             self._widgets.insert(
                 self._view_model.index_of_selected_node() + 2, self.input_field
             )
+            indent = list_items[self._view_model.index_of_selected_node()].indentation_level
+            self.input_field.prompt = "  " * indent + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:
         indent = "  " * item.indentation_level
