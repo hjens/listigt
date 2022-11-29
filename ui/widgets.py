@@ -103,6 +103,8 @@ class TodoItemTree(ptg.Container):
             self._widgets.insert(
                 self._view_model.index_of_selected_node() + 2, self.input_field
             )
+            self.set_widgets(self._widgets)
+            self.input_field.select(0)
             try:
                 indent = list_items[
                     self._view_model.index_of_selected_node()
