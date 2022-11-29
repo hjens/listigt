@@ -103,9 +103,12 @@ class TodoItemTree(ptg.Container):
             self._widgets.insert(
                 self._view_model.index_of_selected_node() + 2, self.input_field
             )
-            indent = list_items[
-                self._view_model.index_of_selected_node()
-            ].indentation_level
+            try:
+                indent = list_items[
+                    self._view_model.index_of_selected_node()
+                ].indentation_level
+            except IndexError:
+                indent = 0
             self.input_field.prompt = "  " * indent + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:

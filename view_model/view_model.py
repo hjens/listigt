@@ -18,7 +18,7 @@ class ListItem:
 class ViewModel:
     def __init__(self, save_file: Path):
         self._save_file = save_file
-        self.tree_root = self.load_from_file()
+        self.tree_root: TreeNode = self.load_from_file()
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
 
@@ -29,7 +29,7 @@ class ViewModel:
 
     def save_to_file(self):
         with open(self._save_file, "w") as f:
-            f.write("\n".join([str(item) for item in self.tree_root.children]))
+            f.write("\n".join([str(item) for item in self.tree_root.root().children]))
 
     def load_from_file(self) -> TreeNode:
         with open(self._save_file) as f:
@@ -69,10 +69,15 @@ class ViewModel:
     def select_previous(self):
         self.selected_node = self.tree_root.node_before(self.selected_node)
 
-    def set_as_root(self, node):
+    def set_as_root(self, node: Optional[TreeNode]):
+        if node is None:
+            return
+        
         self.tree_root = node
-        if self.tree_root.children:
+        if self.tree_root.has_children():
             self.selected_node = self.tree_root.first_child()
+        else:
+            self.selected_node = None
 
     def move_root_upwards(self):
         if self.tree_root.parent:
@@ -92,7 +97,9 @@ class ViewModel:
     def toggle_completed(self):
         def toogle_node(node):
             node.data.complete = not node.data.complete
-        self.selected_node.apply_to_children(toogle_node)
+
+        if self.selected_node is not None:
+            self.selected_node.apply_to_children(toogle_node)
 
         self.save_to_file()
 
@@ -108,7 +115,10 @@ class ViewModel:
 
     def insert_item(self, item_text: str):
         new_node = TreeNode(data=TodoItem(item_text))
-        self.selected_node.add_sibling(new_node)
+        if self.selected_node:
+            self.selected_node.add_sibling(new_node)
+        else:
+            self.tree_root.add_child(new_node)
         self._is_inserting = False
         self.selected_node = new_node
         self._last_item_on_screen += 1
@@ -117,8 +127,9 @@ class ViewModel:
 
     def delete_item(self):
         node_to_remove = self.selected_node
-        self.select_previous()
-        self.tree_root.remove_node(node_to_remove)
+        if node_to_remove is not None:
+            self.select_previous()
+            self.tree_root.remove_node(node_to_remove)
 
         self.save_to_file()
 

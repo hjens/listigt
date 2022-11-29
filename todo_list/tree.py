@@ -47,6 +47,9 @@ class TreeNode:
         return None
 
     def node_after(self, node: TreeNode) -> TreeNode:
+        if not self.has_children():
+            return self
+
         generator = self.gen_all_nodes()
         for item in generator:
             if item == node:
@@ -57,6 +60,9 @@ class TreeNode:
         assert False, "This should not happen"
 
     def node_before(self, node: TreeNode) -> TreeNode:
+        if not self.has_children():
+            return self
+        
         # TODO: this could be optimized
         all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
