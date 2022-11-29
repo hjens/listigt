@@ -72,7 +72,7 @@ class ViewModel:
     def set_as_root(self, node: Optional[TreeNode]):
         if node is None:
             return
-        
+
         self.tree_root = node
         if self.tree_root.has_children():
             self.selected_node = self.tree_root.first_child()
