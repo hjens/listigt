@@ -23,7 +23,7 @@ class NewItemInput(ptg.InputField):
         if super().handle_key(key):
             return True
 
-        if key in ("å", "ä", "ö"):
+        if key in ("å", "ä", "ö", "Å", "Ä", "Ö"):
             self.insert_text(key)
             return True
         if key == ptg.keys.ENTER:
