@@ -114,7 +114,7 @@ class TodoItemTree(ptg.Container):
             self.input_field.prompt = "  " * indent + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:
-        indent = "  " * item.indentation_level
+        indent = "   " * item.indentation_level
         highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
         symbol = "▼" if item.has_children else "•"
