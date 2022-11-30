@@ -53,7 +53,7 @@ def test_build_tree_with_subtitle():
     - Item 1.1.2
   - Item 1.2
     - Item 1.2.1
-     - Item 1.2.1.1
+      - [COMPLETE] [COLLAPSED] Item 1.2.1.1
 - Item 2"""
     root = TreeNode.from_string(s, TodoItem.tree_node_from_str)
     assert len(root.children) == 2
@@ -61,3 +61,8 @@ def test_build_tree_with_subtitle():
     assert root.children[0].children[0].data.subtitle == "Subtitle"
     assert root.first_child().first_child().first_child().data.text == "Item 1.1.1"
     assert root.first_child().first_child().first_child().data.complete
+    assert not root.first_child().first_child().first_child().data.collapsed
+    node = root.first_child().children[1].children[0].children[0]
+    assert node.data.text == "Item 1.2.1.1"
+    assert node.data.complete
+    assert node.data.collapsed
