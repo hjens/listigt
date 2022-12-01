@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pytest
 
 from todo_list.todo_list import TodoItem
@@ -45,8 +47,7 @@ def test_tree_to_and_from_str():
 
 
 def test_build_tree_with_subtitle():
-    s = \
-"""- Item 1
+    s = """- Item 1
   - Item 1.1
   "Subtitle"
     - [COMPLETE] Item 1.1.1
@@ -66,3 +67,12 @@ def test_build_tree_with_subtitle():
     assert node.data.text == "Item 1.2.1.1"
     assert node.data.complete
     assert node.data.collapsed
+
+
+def test_copy():
+    node = TreeNode(TodoItem("test"))
+    deep_copied_node = deepcopy(node)
+    deep_copied_node.data.text = "changed"
+
+    assert node.data.text == "test"
+    assert deep_copied_node.data.text == "changed"

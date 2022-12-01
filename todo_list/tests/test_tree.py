@@ -1,3 +1,5 @@
+from copy import copy
+
 import pytest
 
 from todo_list.tree import TreeNode
@@ -211,3 +213,12 @@ def test_apply_to_self_and_children(tree_and_nodes):
     assert nodes["sub_branch"].data == "updated"
     assert nodes["leaf3"].data == "updated"
     assert nodes["leaf1"].data == "updated"
+
+
+def test_copy():
+    node = TreeNode("test")
+    copied_node = copy(node)
+    copied_node.data = "changed"
+
+    assert node.data == "test"
+    assert copied_node.data == "changed"

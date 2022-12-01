@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
@@ -23,6 +24,7 @@ class ViewModel:
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
         self._cut_item: Optional[TreeNode] = None
+        self._item_being_edited: Optional[TreeNode] = None
 
         self.set_window_height(0)
 
@@ -126,6 +128,21 @@ class ViewModel:
 
     def cancel_insert(self):
         self._is_inserting = False
+
+    def start_edit(self):
+        if self.selected_node:
+            self._item_being_edited = copy.deepcopy(self.selected_node)
+
+    def cancel_edit(self):
+        self.selected_node = None
+
+    def finish_edit(self, new_data: TodoItem):
+        self.selected_node.data = new_data
+        self._item_being_edited = None
+
+    @property
+    def is_editing(self):
+        return self._item_being_edited is not None
 
     def toggle_completed(self):
         def set_complete(node):
