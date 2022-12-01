@@ -13,6 +13,7 @@ class ListItem:
     is_selected: bool
     has_children: bool
     is_completed: bool
+    is_collapsed: bool
 
 
 class ViewModel:
@@ -52,6 +53,7 @@ class ViewModel:
                 is_selected=node == self.selected_node,
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
+                is_collapsed=node.data.collapsed,
             )
 
         items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes()]
@@ -87,6 +89,10 @@ class ViewModel:
             self._last_item_on_screen = (
                 self._first_item_on_screen + self._num_items_on_screen
             )
+
+    def toggle_collapse_node(self):
+        if self.selected_node:
+            self.selected_node.data.collapsed = (not self.selected_node.data.collapsed)
 
     def start_insert(self):
         self._is_inserting = True

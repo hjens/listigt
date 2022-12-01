@@ -62,7 +62,7 @@ class TreeNode:
     def node_before(self, node: TreeNode) -> TreeNode:
         if not self.has_children():
             return self
-        
+
         # TODO: this could be optimized
         all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
@@ -84,6 +84,16 @@ class TreeNode:
             yield child
             for node in child.gen_all_nodes():
                 yield node
+
+    def gen_all_nodes_with_condition(
+            self,
+            descend_condition: Callable[[TreeNode], bool]
+    ) -> Generator[TreeNode]:
+        for child in self.children:
+            yield child
+            if descend_condition(child):
+                for node in child.gen_all_nodes():
+                    yield node
 
     @property
     def parent(self) -> TreeNode:
@@ -134,7 +144,7 @@ class TreeNode:
 
     @classmethod
     def from_string(
-            cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
+        cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
     ) -> TreeNode:
         current_level = 0
         insert_point = node_from_str("- root", None)  # TODO
