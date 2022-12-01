@@ -79,32 +79,20 @@ def test_add_sibling():
     assert not branch2.children
 
 
-def test_node_after():
-    root = TreeNode("root")
-    branch = TreeNode("branch")
-    leaf1 = TreeNode("leaf1")
-    leaf2 = TreeNode("leaf2")
-    root.add_child(branch)
-    branch.add_child(leaf1)
-    branch.add_child(leaf2)
+def test_node_after(tree_and_nodes):
+    root, nodes = tree_and_nodes
 
-    assert root.node_after(branch) == leaf1
-    assert root.node_after(leaf1) == leaf2
-    assert root.node_after(leaf2) == branch
+    assert root.node_after(nodes["branch1"]) == nodes["sub_branch"]
+    assert root.node_after(nodes["leaf1"]) == nodes["leaf2"]
+    assert root.node_after(nodes["leaf4"]) == nodes["branch1"]
 
 
-def test_node_before():
-    root = TreeNode("root")
-    branch = TreeNode("branch")
-    leaf1 = TreeNode("leaf1")
-    leaf2 = TreeNode("leaf2")
-    root.add_child(branch)
-    branch.add_child(leaf1)
-    branch.add_child(leaf2)
+def test_node_before(tree_and_nodes):
+    root, nodes = tree_and_nodes
 
-    assert root.node_before(branch) == leaf2
-    assert root.node_before(leaf1) == branch
-    assert root.node_before(leaf2) == leaf1
+    assert root.node_before(nodes["sub_branch"]) == nodes["branch1"]
+    assert root.node_before(nodes["leaf1"]) == nodes["leaf3"]
+    assert root.node_before(nodes["branch1"]) == nodes["leaf4"]
 
 
 def test_change_level():
