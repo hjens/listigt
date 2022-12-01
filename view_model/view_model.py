@@ -56,7 +56,11 @@ class ViewModel:
                 is_collapsed=node.data.collapsed,
             )
 
-        items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes_with_condition(lambda node: not node.data.collapsed)]
+        collapsed_filter = lambda node: not node.data.collapsed
+        items = [
+            list_item_from_node(node)
+            for node in self.tree_root.gen_all_nodes_with_condition(collapsed_filter)
+        ]
         self._update_scrolling(len(items))
         return items[self._first_item_on_screen : self._last_item_on_screen]
 
@@ -66,10 +70,16 @@ class ViewModel:
         return self.tree_root.data.text
 
     def select_next(self):
-        self.selected_node = self.tree_root.node_after(self.selected_node)
+        collapsed_filter = lambda node: not node.data.collapsed
+        self.selected_node = self.tree_root.node_after(
+            self.selected_node, collapsed_filter
+        )
 
     def select_previous(self):
-        self.selected_node = self.tree_root.node_before(self.selected_node)
+        collapsed_filter = lambda node: not node.data.collapsed
+        self.selected_node = self.tree_root.node_before(
+            self.selected_node, collapsed_filter
+        )
 
     def set_as_root(self, node: Optional[TreeNode]):
         if node is None:
@@ -92,7 +102,7 @@ class ViewModel:
 
     def toggle_collapse_node(self):
         if self.selected_node:
-            self.selected_node.data.collapsed = (not self.selected_node.data.collapsed)
+            self.selected_node.data.collapsed = not self.selected_node.data.collapsed
 
     def start_insert(self):
         self._is_inserting = True
