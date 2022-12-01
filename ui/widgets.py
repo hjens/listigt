@@ -38,6 +38,8 @@ class NewItemInput(ptg.InputField):
 
 
 class TodoItemTree(ptg.Container):
+    INDENT_SPACES = 3
+
     def __init__(self, vm: view_model.ViewModel, **attrs: Any):
         super().__init__(**attrs)
         self._view_model = vm
@@ -112,7 +114,7 @@ class TodoItemTree(ptg.Container):
                 ].indentation_level
             except IndexError:
                 indent = 0
-            self.input_field.prompt = "  " * indent + "• "
+            self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:
         def symbol_for_item(item: ListItem) -> str:
@@ -122,7 +124,7 @@ class TodoItemTree(ptg.Container):
                 return "►"
             return "▼"
 
-        indent = "   " * item.indentation_level
+        indent = " " * item.indentation_level * self.INDENT_SPACES
         highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
         symbol = symbol_for_item(item)
