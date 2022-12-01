@@ -126,6 +126,6 @@ class TodoItemTree(ptg.Container):
         highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
         symbol = symbol_for_item(item)
-        completed_style = "[strikethrough]" if item.is_completed else ""
+        completed_style = "[strikethrough forestgreen]" if item.is_completed else ""
         # ►
         return indent + style + completed_style + symbol + " " + item.text
