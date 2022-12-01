@@ -72,6 +72,9 @@ class TodoItemTree(ptg.Container):
         key_handlers = {
             "j": lambda: self._view_model.select_next(),
             "k": lambda: self._view_model.select_previous(),
+            "L": lambda: self._view_model.select_bottom(),
+            "H": lambda: self._view_model.select_top(),
+            "M": lambda: self._view_model.select_middle(),
             "n": lambda: self._view_model.start_insert(),
             "x": lambda: self._view_model.delete_item(),
             "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),

@@ -56,10 +56,9 @@ class ViewModel:
                 is_collapsed=node.data.collapsed,
             )
 
-        collapsed_filter = lambda node: not node.data.collapsed
         items = [
             list_item_from_node(node)
-            for node in self.tree_root.gen_all_nodes_with_condition(collapsed_filter)
+            for node in self._all_visible_nodes()
         ]
         self._update_scrolling(len(items))
         return items[self._first_item_on_screen : self._last_item_on_screen]
@@ -80,6 +79,22 @@ class ViewModel:
         self.selected_node = self.tree_root.node_before(
             self.selected_node, collapsed_filter
         )
+
+    def select_bottom(self):
+        nodes_list = list(self._all_visible_nodes())
+        if len(nodes_list) >= self._last_item_on_screen - 1:
+            self.selected_node = nodes_list[self._last_item_on_screen - 1]
+
+    def select_top(self):
+        nodes_list = list(self._all_visible_nodes())
+        if len(nodes_list) >= self._first_item_on_screen:
+            self.selected_node = nodes_list[0]
+
+    def select_middle(self):
+        nodes_list = list(self._all_visible_nodes())
+        middle_index = (self._first_item_on_screen + self._last_item_on_screen) // 2
+        if len(nodes_list) >= middle_index:
+            self.selected_node = nodes_list[middle_index]
 
     def set_as_root(self, node: Optional[TreeNode]):
         if node is None:
@@ -126,6 +141,7 @@ class ViewModel:
         self.save_to_file()
 
     def index_of_selected_node(self) -> int:
+        # TODO: this should probably use a filter function
         for index, item in enumerate(self.tree_root.gen_all_nodes()):
             if item == self.selected_node:
                 return index
@@ -171,3 +187,7 @@ class ViewModel:
             self._first_item_on_screen = max(
                 0, self._last_item_on_screen - self._num_items_on_screen
             )
+
+    def _all_visible_nodes(self):
+        collapsed_filter = lambda node: not node.data.collapsed
+        return self.tree_root.gen_all_nodes_with_condition(collapsed_filter)
