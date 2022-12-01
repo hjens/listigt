@@ -103,6 +103,7 @@ class ViewModel:
     def toggle_collapse_node(self):
         if self.selected_node:
             self.selected_node.data.collapsed = not self.selected_node.data.collapsed
+        self.save_to_file()
 
     def start_insert(self):
         self._is_inserting = True
@@ -111,11 +112,16 @@ class ViewModel:
         self._is_inserting = False
 
     def toggle_completed(self):
-        def toogle_node(node):
-            node.data.complete = not node.data.complete
+        def set_complete(node):
+            node.data.complete = True
 
-        if self.selected_node is not None:
-            self.selected_node.apply_to_children(toogle_node)
+        if self.selected_node is None:
+            return
+
+        if not self.selected_node.data.complete:
+            self.selected_node.apply_to_self_and_children(set_complete)
+        else:
+            self.selected_node.data.complete = False
 
         self.save_to_file()
 

@@ -116,10 +116,10 @@ class TreeNode:
     def set_level(self, new_level: int):
         self._level = new_level
 
-    def apply_to_children(self, callable: Callable[[TreeNode], None]):
+    def apply_to_self_and_children(self, callable: Callable[[TreeNode], None]):
         callable(self)
         for child in self.children:
-            child.apply_to_children(callable)
+            child.apply_to_self_and_children(callable)
 
     @property
     def children(self) -> List[TreeNode]:

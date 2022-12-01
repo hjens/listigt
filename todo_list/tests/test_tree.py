@@ -198,21 +198,16 @@ def test_to_str():
     assert result == expected
 
 
-def test_apply_to_children():
-    root = TreeNode("root")
-    branch = TreeNode("branch")
-    leaf1 = TreeNode("leaf1")
-    leaf2 = TreeNode("leaf2")
-    root.add_child(branch)
-    branch.add_child(leaf1)
-    branch.add_child(leaf2)
+def test_apply_to_self_and_children(tree_and_nodes):
+    root, nodes = tree_and_nodes
 
     def complete(node):
         node.data = "updated"
 
-    branch.apply_to_children(complete)
+    nodes["branch1"].apply_to_self_and_children(complete)
 
     assert root.data == "root"
-    assert branch.data == "updated"
-    assert leaf1.data == "updated"
-    assert leaf2.data == "updated"
+    assert nodes["branch1"].data == "updated"
+    assert nodes["sub_branch"].data == "updated"
+    assert nodes["leaf3"].data == "updated"
+    assert nodes["leaf1"].data == "updated"
