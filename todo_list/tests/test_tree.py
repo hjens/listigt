@@ -7,30 +7,38 @@ from todo_list.tree import TreeNode
 def tree_and_nodes():
     # - root
     #   - branch1
+    #     - sub_branch
+    #       - leaf3
     #     - leaf1
     #   - leaf2
     #   - branch2
-    #     - leaf3
+    #     - leaf4
 
     root = TreeNode("root")
     branch1 = TreeNode("branch1")
     branch2 = TreeNode("branch2")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
+    sub_branch = TreeNode("sub_branch")
     leaf3 = TreeNode("leaf3")
+    leaf4 = TreeNode("leaf4")
     root.add_child(branch1)
     root.add_child(branch2)
     root.add_child(leaf2, after_child=branch1)
+    branch1.add_child(sub_branch)
+    sub_branch.add_child(leaf3)
     branch1.add_child(leaf1)
-    branch2.add_child(leaf3)
+    branch2.add_child(leaf4)
 
     nodes = {
         "root": root,
         "branch1": branch1,
         "branch2": branch2,
+        "sub_branch": sub_branch,
         "leaf1": leaf1,
         "leaf2": leaf2,
         "leaf3": leaf3,
+        "leaf4": leaf4,
     }
     return root, nodes
 
@@ -123,7 +131,15 @@ def test_gen_all_nodes(tree_and_nodes):
     root, nodes = tree_and_nodes
 
     generator = root.gen_all_nodes()
-    expected_output = ["branch1", "leaf1", "leaf2", "branch2", "leaf3"]
+    expected_output = [
+        "branch1",
+        "sub_branch",
+        "leaf3",
+        "leaf1",
+        "leaf2",
+        "branch2",
+        "leaf4",
+    ]
 
     for output, expected in zip(generator, expected_output):
         assert output.data == expected
@@ -133,10 +149,10 @@ def test_gen_all_nodes_with_condition(tree_and_nodes):
     root, nodes = tree_and_nodes
 
     def filter(node):
-        return node.data != "branch1"
+        return node.data != "sub_branch"
 
     generator = root.gen_all_nodes_with_condition(filter)
-    expected_output = ["branch1", "leaf2", "branch2", "leaf3"]
+    expected_output = ["branch1", "sub_branch", "leaf1", "leaf2", "branch2", "leaf4"]
 
     for output, expected in zip(generator, expected_output):
         assert output.data == expected

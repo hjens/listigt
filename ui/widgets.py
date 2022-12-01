@@ -75,6 +75,7 @@ class TodoItemTree(ptg.Container):
             "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
             "h": lambda: self._view_model.move_root_upwards(),
             ptg.keys.ENTER: lambda: self._view_model.toggle_completed(),
+            ptg.keys.SPACE: lambda: self._view_model.toggle_collapse_node(),
         }
 
         if key in key_handlers:
@@ -114,10 +115,17 @@ class TodoItemTree(ptg.Container):
             self.input_field.prompt = "  " * indent + "• "
 
     def _text_for_list_item(self, item: ListItem) -> str:
+        def symbol_for_item(item: ListItem) -> str:
+            if not item.has_children:
+                return "•"
+            elif item.is_collapsed:
+                return "►"
+            return "▼"
+
         indent = "   " * item.indentation_level
         highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
-        symbol = "▼" if item.has_children else "•"
+        symbol = symbol_for_item(item)
         completed_style = "[strikethrough]" if item.is_completed else ""
         # ►
         return indent + style + completed_style + symbol + " " + item.text

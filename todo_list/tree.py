@@ -92,7 +92,7 @@ class TreeNode:
         for child in self.children:
             yield child
             if descend_condition(child):
-                for node in child.gen_all_nodes():
+                for node in child.gen_all_nodes_with_condition(descend_condition):
                     yield node
 
     @property

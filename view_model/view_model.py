@@ -56,7 +56,7 @@ class ViewModel:
                 is_collapsed=node.data.collapsed,
             )
 
-        items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes()]
+        items = [list_item_from_node(node) for node in self.tree_root.gen_all_nodes_with_condition(lambda node: not node.data.collapsed)]
         self._update_scrolling(len(items))
         return items[self._first_item_on_screen : self._last_item_on_screen]
 
