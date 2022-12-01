@@ -52,7 +52,7 @@ def test_add_tree_nodes(tree_and_nodes):
     leaf2 = nodes["leaf2"]
 
     assert len(root.children) == 3
-    assert len(branch1.children) == 1
+    assert len(branch1.children) == 2
     assert root.children == [branch1, leaf2, branch2]
     assert root.level == 0
     assert branch1.level == 1
@@ -87,12 +87,30 @@ def test_node_after(tree_and_nodes):
     assert root.node_after(nodes["leaf4"]) == nodes["branch1"]
 
 
+def test_node_after_with_condition(tree_and_nodes):
+    root, nodes = tree_and_nodes
+    filter = lambda node: node.data != "sub_branch"
+
+    assert root.node_after(nodes["branch1"], filter) == nodes["sub_branch"]
+    assert root.node_after(nodes["sub_branch"], filter) == nodes["leaf1"]
+    assert root.node_after(nodes["leaf4"], filter) == nodes["branch1"]
+
+
 def test_node_before(tree_and_nodes):
     root, nodes = tree_and_nodes
 
     assert root.node_before(nodes["sub_branch"]) == nodes["branch1"]
     assert root.node_before(nodes["leaf1"]) == nodes["leaf3"]
     assert root.node_before(nodes["branch1"]) == nodes["leaf4"]
+
+
+def test_node_before_with_condition(tree_and_nodes):
+    root, nodes = tree_and_nodes
+    filter = lambda node: node.data != "sub_branch"
+
+    assert root.node_before(nodes["sub_branch"], filter) == nodes["branch1"]
+    assert root.node_before(nodes["leaf1"], filter) == nodes["sub_branch"]
+    assert root.node_before(nodes["branch1"], filter) == nodes["leaf4"]
 
 
 def test_change_level():

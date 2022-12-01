@@ -4,6 +4,7 @@ from typing import Optional, TypeVar, List, Generator, Callable
 import uuid
 
 T = TypeVar("T")
+FilterFunction = Callable[["TreeNode"], bool]
 
 
 class TreeNode:
@@ -46,11 +47,16 @@ class TreeNode:
             return self.children[-1]
         return None
 
-    def node_after(self, node: TreeNode) -> TreeNode:
+    def node_after(
+        self, node: TreeNode, descend_condition: Optional[FilterFunction] = None
+    ) -> TreeNode:
         if not self.has_children():
             return self
 
-        generator = self.gen_all_nodes()
+        if descend_condition:
+            generator = self.gen_all_nodes_with_condition(descend_condition)
+        else:
+            generator = self.gen_all_nodes()
         for item in generator:
             if item == node:
                 try:
@@ -59,12 +65,17 @@ class TreeNode:
                     return self.children[0]
         assert False, "This should not happen"
 
-    def node_before(self, node: TreeNode) -> TreeNode:
+    def node_before(
+        self, node: TreeNode, descend_condition: Optional[FilterFunction] = None
+    ) -> TreeNode:
         if not self.has_children():
             return self
 
         # TODO: this could be optimized
-        all_items = list(self.gen_all_nodes())
+        if descend_condition:
+            all_items = list(self.gen_all_nodes_with_condition(descend_condition))
+        else:
+            all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
         for item in generator:
             if item == node:
@@ -86,8 +97,7 @@ class TreeNode:
                 yield node
 
     def gen_all_nodes_with_condition(
-            self,
-            descend_condition: Callable[[TreeNode], bool]
+        self, descend_condition: FilterFunction
     ) -> Generator[TreeNode]:
         for child in self.children:
             yield child
