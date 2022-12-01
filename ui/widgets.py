@@ -129,5 +129,4 @@ class TodoItemTree(ptg.Container):
         style = "[inverse]" if highlighted else ""
         symbol = symbol_for_item(item)
         completed_style = "[strikethrough forestgreen]" if item.is_completed else ""
-        # ►
         return indent + style + completed_style + symbol + " " + item.text
