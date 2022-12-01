@@ -22,6 +22,7 @@ class ViewModel:
         self.tree_root: TreeNode = self.load_from_file()
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
+        self._cut_item: Optional[TreeNode] = None
 
         self.set_window_height(0)
 
@@ -141,8 +142,7 @@ class ViewModel:
         self.save_to_file()
 
     def index_of_selected_node(self) -> int:
-        # TODO: this should probably use a filter function
-        for index, item in enumerate(self.tree_root.gen_all_nodes()):
+        for index, item in enumerate(self._all_visible_nodes()):
             if item == self.selected_node:
                 return index
         return 0
@@ -166,8 +166,18 @@ class ViewModel:
     def delete_item(self):
         node_to_remove = self.selected_node
         if node_to_remove is not None:
+            self._cut_item = node_to_remove
             self.select_previous()
             self.tree_root.remove_node(node_to_remove)
+
+        self.save_to_file()
+
+    def paste_item(self):
+        if self.selected_node:
+            self.selected_node.add_sibling(self._cut_item)
+        else:
+            self.tree_root.add_child(self._cut_item)
+        self._cut_item = None
 
         self.save_to_file()
 
