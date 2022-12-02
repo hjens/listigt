@@ -44,6 +44,24 @@ class TodoItemTree(ptg.Container):
         super().__init__(**attrs)
         self._view_model = vm
 
+        self._create_new_item_input_widget()
+        self._create_edit_item_widget()
+        self._create_default_label_widgets()
+
+    def _create_edit_item_widget(self, value: str = ""):
+        def on_edit_item_submit(text):
+            self._view_model.finish_edit(text)
+            self._update_widgets()
+
+        def on_edit_item_cancel():
+            self._view_model.cancel_edit()
+            self._update_widgets()
+
+        self.edit_item_field = NewItemInput(
+            on_submit=on_edit_item_submit, on_cancel=on_edit_item_cancel, value=value
+        )
+
+    def _create_new_item_input_widget(self):
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
             self._update_widgets()
@@ -56,24 +74,13 @@ class TodoItemTree(ptg.Container):
             on_submit=on_new_item_submit, on_cancel=on_new_item_cancel
         )
 
-        def on_edit_item_submit(text):
-            self._view_model.finish_edit(text)
-            self._update_widgets()
-
-        def on_edit_item_cancel():
-            self._view_model.cancel_edit()
-            self._update_widgets()
-
-        self.edit_item_field = NewItemInput(
-            on_submit=on_edit_item_submit, on_cancel=on_edit_item_cancel
-        )
-
+    def _create_default_label_widgets(self):
         self._item_labels = [
             ptg.Label("", parent_align=HorizontalAlignment.LEFT)
             for _ in range(self._view_model.num_items_on_screen)
         ]
         self._title_label = ptg.Label(
-            vm.list_title(), parent_align=HorizontalAlignment.LEFT
+            self._view_model.list_title(), parent_align=HorizontalAlignment.LEFT
         )
         self.set_widgets([self._title_label, *self._item_labels])
         self._update_widgets()
@@ -142,10 +149,14 @@ class TodoItemTree(ptg.Container):
             edit_field_visible = self.edit_item_field in self._widgets
 
             if edit_field_visible and not self._view_model.is_editing:
-                self.set_widgets(
-                    [w for w in self._widgets if w != self.edit_item_field]
-                )
+                # Need to rebuild everything since one label was removed when starting edit
+                self._create_default_label_widgets()
             elif self._view_model.is_editing and not edit_field_visible:
+                # Need to revuild the edit field because that seems to be the only way
+                # to set a new value
+                selected_item = list_items[self._view_model.index_of_selected_node()]
+                self._create_edit_item_widget(value=selected_item.text)
+                self.edit_item_field.prompt = " " * selected_item.indentation_level * self.INDENT_SPACES + "• "
                 edited_node_index = self._view_model.index_of_selected_node()
                 self._widgets = (
                     self._widgets[:edited_node_index + 1]
@@ -154,9 +165,6 @@ class TodoItemTree(ptg.Container):
                 )
                 self.set_widgets(self._widgets)
                 self.edit_item_field.select(0)
-                selected_item = list_items[self._view_model.index_of_selected_node()]
-                self.edit_item_field.prompt = " " * selected_item.indentation_level * self.INDENT_SPACES + "• "
-                self.edit_item_field._value = selected_item.text
 
         list_items = self._view_model.list_items()
         update_texts_for_labels(list_items)

@@ -134,11 +134,12 @@ class ViewModel:
             self._item_being_edited = copy.deepcopy(self.selected_node)
 
     def cancel_edit(self):
-        self.selected_node = None
-
-    def finish_edit(self, new_data: TodoItem):
-        self.selected_node.data = new_data
         self._item_being_edited = None
+
+    def finish_edit(self, new_text: str):
+        self.selected_node.data.text = new_text
+        self._item_being_edited = None
+        self.save_to_file()
 
     @property
     def is_editing(self):
