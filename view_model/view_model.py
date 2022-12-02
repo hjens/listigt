@@ -18,9 +18,9 @@ class ListItem:
 
 
 class ViewModel:
-    def __init__(self, save_file: Path):
+    def __init__(self, tree_root: TreeNode, save_file: Path):
         self._save_file = save_file
-        self.tree_root: TreeNode = self.load_from_file()
+        self.tree_root = tree_root
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
         self._cut_item: Optional[TreeNode] = None
@@ -34,10 +34,6 @@ class ViewModel:
     def save_to_file(self):
         with open(self._save_file, "w") as f:
             f.write("\n".join([str(item) for item in self.tree_root.root().children]))
-
-    def load_from_file(self) -> TreeNode:
-        with open(self._save_file) as f:
-            return TreeNode.from_string(f.read(), TodoItem.tree_node_from_str)
 
     def set_window_height(self, height: int):
         self._num_items_on_screen = height
