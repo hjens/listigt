@@ -136,11 +136,6 @@ class TodoItemTree(ptg.Container):
             if input_field_visible and not self._view_model.is_inserting:
                 self.set_widgets([w for w in self._widgets if w != self.input_field])
             elif self._view_model.is_inserting and not input_field_visible:
-                self._widgets.insert(
-                    self._view_model.index_of_selected_node() + 2, self.input_field
-                )
-                self.set_widgets(self._widgets)
-                self.input_field.select(0)
                 try:
                     indent = list_items[
                         self._view_model.index_of_selected_node()
@@ -148,6 +143,15 @@ class TodoItemTree(ptg.Container):
                 except IndexError:
                     indent = 0
                 self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
+                
+                if self._view_model.selected_node is None:
+                    self._widgets.insert(1, self.input_field)
+                else:
+                    self._widgets.insert(
+                        self._view_model.index_of_selected_node() + 2, self.input_field
+                    )
+                self.set_widgets(self._widgets)
+                self.input_field.select(0)
 
         def show_or_hide_edit_field(list_items):
             edit_field_visible = self.edit_item_field in self._widgets
@@ -160,12 +164,14 @@ class TodoItemTree(ptg.Container):
                 # to set a new value
                 selected_item = list_items[self._view_model.index_of_selected_node()]
                 self._create_edit_item_widget(value=selected_item.text)
-                self.edit_item_field.prompt = " " * selected_item.indentation_level * self.INDENT_SPACES + "• "
+                self.edit_item_field.prompt = (
+                    " " * selected_item.indentation_level * self.INDENT_SPACES + "• "
+                )
                 edited_node_index = self._view_model.index_of_selected_node()
                 self._widgets = (
-                    self._widgets[:edited_node_index + 1]
+                    self._widgets[: edited_node_index + 1]
                     + [self.edit_item_field]
-                    + self._widgets[edited_node_index + 2:]
+                    + self._widgets[edited_node_index + 2 :]
                 )
                 self.set_widgets(self._widgets)
                 self.edit_item_field.select(0)
