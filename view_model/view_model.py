@@ -187,6 +187,8 @@ class ViewModel:
             self._cut_item = node_to_remove
             self.select_previous()
             self.tree_root.remove_node(node_to_remove)
+            if not self.tree_root.has_children():
+                self.selected_node = None
 
         self.save_to_file()
 
