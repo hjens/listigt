@@ -1,5 +1,6 @@
 from typing import Any, Callable
 
+import pyperclip
 import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
@@ -33,6 +34,9 @@ class NewItemInput(ptg.InputField):
         if key == ptg.keys.ESC:
             self.on_cancel()
             self.delete_back(len(self.value))
+            return True
+        if key == ptg.keys.CTRL_V:
+            self.insert_text(pyperclip.paste())
             return True
         return False
 
