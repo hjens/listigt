@@ -84,7 +84,7 @@ class ViewModel:
     def select_top(self):
         nodes_list = list(self._all_visible_nodes())
         if len(nodes_list) >= self._first_item_on_screen:
-            self.selected_node = nodes_list[0]
+            self.selected_node = nodes_list[self._first_item_on_screen]
 
     def select_middle(self):
         nodes_list = list(self._all_visible_nodes())
