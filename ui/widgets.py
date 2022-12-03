@@ -107,7 +107,7 @@ class TodoItemTree(ptg.Container):
             "h": lambda: self._view_model.move_root_upwards(),
             "p": lambda: self._view_model.paste_item(),
             "e": lambda: self._view_model.start_edit(),
-            ptg.keys.ENTER: lambda: self._view_model.toggle_completed(),
+            ptg.keys.ENTER: lambda: self._view_model.toggle_complete(),
             ptg.keys.SPACE: lambda: self._view_model.toggle_collapse_node(),
         }
 

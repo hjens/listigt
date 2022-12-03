@@ -55,10 +55,7 @@ class ViewModel:
                 is_collapsed=node.data.collapsed,
             )
 
-        items = [
-            list_item_from_node(node)
-            for node in self._all_visible_nodes()
-        ]
+        items = [list_item_from_node(node) for node in self._all_visible_nodes()]
         self._update_scrolling(len(items))
         return items[self._first_item_on_screen : self._last_item_on_screen]
 
@@ -125,6 +122,22 @@ class ViewModel:
     def cancel_insert(self):
         self._is_inserting = False
 
+    @property
+    def is_inserting(self):
+        return self._is_inserting
+
+    def insert_item(self, item_text: str):
+        new_node = TreeNode(data=TodoItem(item_text))
+        if self.selected_node:
+            self.selected_node.add_sibling(new_node)
+        else:
+            self.tree_root.add_child(new_node)
+        self._is_inserting = False
+        self.selected_node = new_node
+        self._last_item_on_screen += 1
+
+        self.save_to_file()
+
     def start_edit(self):
         if self.selected_node:
             self._item_being_edited = copy.deepcopy(self.selected_node)
@@ -133,6 +146,7 @@ class ViewModel:
         self._item_being_edited = None
 
     def finish_edit(self, new_text: str):
+        assert self.is_editing
         self.selected_node.data.text = new_text
         self._item_being_edited = None
         self.save_to_file()
@@ -141,7 +155,7 @@ class ViewModel:
     def is_editing(self):
         return self._item_being_edited is not None
 
-    def toggle_completed(self):
+    def toggle_complete(self):
         def set_complete(node):
             node.data.complete = True
 
@@ -160,22 +174,6 @@ class ViewModel:
             if item == self.selected_node:
                 return index
         return 0
-
-    @property
-    def is_inserting(self):
-        return self._is_inserting
-
-    def insert_item(self, item_text: str):
-        new_node = TreeNode(data=TodoItem(item_text))
-        if self.selected_node:
-            self.selected_node.add_sibling(new_node)
-        else:
-            self.tree_root.add_child(new_node)
-        self._is_inserting = False
-        self.selected_node = new_node
-        self._last_item_on_screen += 1
-
-        self.save_to_file()
 
     def delete_item(self):
         node_to_remove = self.selected_node
