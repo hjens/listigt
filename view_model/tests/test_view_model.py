@@ -11,13 +11,13 @@ from view_model.view_model import ViewModel
 def tree_str():
     return """
 - Item 1
-  - Item 1.1
+  - [COMPLETE] Item 1.1
   "Subtitle"
-    - [COMPLETE] Item 1.1.1
+    - Item 1.1.1
     - Item 1.1.2
   - Item 1.2
-    - Item 1.2.1
-      - [COMPLETE] [COLLAPSED] Item 1.2.1.1
+    - [COLLAPSED] Item 1.2.1
+      - Item 1.2.1.1
 - Item 2"""
 
 
@@ -62,13 +62,26 @@ def test_list_items(view_model):
         "Item 1.1.2",
         "Item 1.2",
         "Item 1.2.1",
-        "Item 1.2.1.1",
         "Item 2",
     ]
     assert len(list_items) == len(expected_items)
     for result, expected in zip(list_items, expected_items):
         assert result.text == expected
 
+
+def test_list_items_hide_complete(view_model):
+    assert not view_model.hide_complete
+    view_model.toggle_hide_complete()
+    list_items = view_model.list_items()
+    expected_items = [
+        "Item 1",
+        "Item 1.2",
+        "Item 1.2.1",
+        "Item 2",
+    ]
+    assert len(list_items) == len(expected_items)
+    for result, expected in zip(list_items, expected_items):
+        assert result.text == expected
 
 def test_list_title(view_model):
     assert view_model.list_title() == "Toppnivå"

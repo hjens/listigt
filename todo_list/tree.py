@@ -97,13 +97,14 @@ class TreeNode:
                 yield node
 
     def gen_all_nodes_with_condition(
-        self, descend_condition: FilterFunction
+        self, filter_function: FilterFunction
     ) -> Generator[TreeNode]:
         for child in self.children:
+            if not filter_function(child):
+                continue
             yield child
-            if descend_condition(child):
-                for node in child.gen_all_nodes_with_condition(descend_condition):
-                    yield node
+            for node in child.gen_all_nodes_with_condition(filter_function):
+                yield node
 
     @property
     def parent(self) -> TreeNode:

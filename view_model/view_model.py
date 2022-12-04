@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from todo_list.todo_list import TodoItem
-from todo_list.tree import TreeNode
+from todo_list.tree import TreeNode, FilterFunction
 
 
 @dataclass
@@ -25,6 +25,7 @@ class ViewModel:
         self._is_inserting = False
         self._cut_item: Optional[TreeNode] = None
         self._item_being_edited: Optional[TreeNode] = None
+        self.hide_complete = False
 
         self.set_window_height(0)
 
@@ -64,16 +65,17 @@ class ViewModel:
             return "Toppnivå"
         return self.tree_root.data.text
 
+    def toggle_hide_complete(self):
+        self.hide_complete = not self.hide_complete
+
     def select_next(self):
-        collapsed_filter = lambda node: not node.data.collapsed
         self.selected_node = self.tree_root.node_after(
-            self.selected_node, collapsed_filter
+            self.selected_node, self._make_filter_func()
         )
 
     def select_previous(self):
-        collapsed_filter = lambda node: not node.data.collapsed
         self.selected_node = self.tree_root.node_before(
-            self.selected_node, collapsed_filter
+            self.selected_node, self._make_filter_func()
         )
 
     def select_bottom(self):
@@ -213,5 +215,19 @@ class ViewModel:
             )
 
     def _all_visible_nodes(self):
-        collapsed_filter = lambda node: not node.data.collapsed
-        return self.tree_root.gen_all_nodes_with_condition(collapsed_filter)
+        return self.tree_root.gen_all_nodes_with_condition(self._make_filter_func())
+
+    def _make_filter_func(self) -> FilterFunction:
+        def filter_func(node: TreeNode) -> bool:
+            # Always hide completed items if hide_complete is set
+            if self.hide_complete and node.data.complete:
+                return False
+            # Hide children of collapsed nodes
+            if node.parent and node.parent.data.collapsed:
+                return False
+            # Make sure we hide all children of hidden nodes
+            if node.parent and not filter_func(node.parent):
+                return False
+            return True
+
+        return filter_func
