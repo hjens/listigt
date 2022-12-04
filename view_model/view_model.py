@@ -25,7 +25,7 @@ class ViewModel:
         self._is_inserting = False
         self._cut_item: Optional[TreeNode] = None
         self._item_being_edited: Optional[TreeNode] = None
-        self.hide_complete = False
+        self.hide_complete_items = False
 
         self.set_window_height(0)
 
@@ -65,8 +65,8 @@ class ViewModel:
             return "Toppnivå"
         return self.tree_root.data.text
 
-    def toggle_hide_complete(self):
-        self.hide_complete = not self.hide_complete
+    def toggle_hide_complete_items(self):
+        self.hide_complete_items = not self.hide_complete_items
 
     def select_next(self):
         self.selected_node = self.tree_root.node_after(
@@ -220,7 +220,7 @@ class ViewModel:
     def _make_filter_func(self) -> FilterFunction:
         def filter_func(node: TreeNode) -> bool:
             # Always hide completed items if hide_complete is set
-            if self.hide_complete and node.data.complete:
+            if self.hide_complete_items and node.data.complete:
                 return False
             # Hide children of collapsed nodes
             if node.parent and node.parent.data.collapsed:

@@ -70,8 +70,8 @@ def test_list_items(view_model):
 
 
 def test_list_items_hide_complete(view_model):
-    assert not view_model.hide_complete
-    view_model.toggle_hide_complete()
+    assert not view_model.hide_complete_items
+    view_model.toggle_hide_complete_items()
     list_items = view_model.list_items()
     expected_items = [
         "Item 1",
