@@ -50,7 +50,7 @@ class ViewModel:
             return ListItem(
                 text=node.data.text,
                 indentation_level=node.level - self.tree_root.level - 1,
-                is_selected=node == self.selected_node,
+                is_selected=self.selected_node and (node == self.selected_node),
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
@@ -69,14 +69,20 @@ class ViewModel:
         self.hide_complete_items = not self.hide_complete_items
 
     def select_next(self):
-        self.selected_node = self.tree_root.node_after(
-            self.selected_node, self._make_filter_func()
-        )
+        if not self.selected_node:
+            self.selected_node = self.tree_root.first_child()
+        else:
+            self.selected_node = self.tree_root.node_after(
+                self.selected_node, self._make_filter_func()
+            )
 
     def select_previous(self):
-        self.selected_node = self.tree_root.node_before(
-            self.selected_node, self._make_filter_func()
-        )
+        if not self.selected_node:
+            self.selected_node = self.tree_root.first_child()
+        else:
+            self.selected_node = self.tree_root.node_before(
+                self.selected_node, self._make_filter_func()
+            )
 
     def select_bottom(self):
         nodes_list = list(self._all_visible_nodes())
@@ -158,22 +164,28 @@ class ViewModel:
         return self._item_being_edited is not None
 
     def toggle_complete(self):
-        def set_complete(node):
-            node.data.complete = True
-
         if self.selected_node is None:
             return
 
-        if not self.selected_node.data.complete:
-            self.selected_node.apply_to_self_and_children(set_complete)
+        # Need to move selection before completing, or select_previous will not work
+        node_to_complete = self.selected_node
+        if self.hide_complete_items:
+            self.select_previous()
+
+        if not node_to_complete.data.complete:
+
+            def set_complete(node):
+                node.data.complete = True
+
+            node_to_complete.apply_to_self_and_children(set_complete)
         else:
-            self.selected_node.data.complete = False
+            node_to_complete.data.complete = False
 
         self.save_to_file()
 
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self._all_visible_nodes()):
-            if item == self.selected_node:
+            if self.selected_node and (item == self.selected_node):
                 return index
         return 0
 

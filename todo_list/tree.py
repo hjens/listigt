@@ -48,13 +48,13 @@ class TreeNode:
         return None
 
     def node_after(
-        self, node: TreeNode, descend_condition: Optional[FilterFunction] = None
+        self, node: TreeNode, filter_func: Optional[FilterFunction] = None
     ) -> TreeNode:
         if not self.has_children():
             return self
 
-        if descend_condition:
-            generator = self.gen_all_nodes_with_condition(descend_condition)
+        if filter_func:
+            generator = self.gen_all_nodes_with_condition(filter_func)
         else:
             generator = self.gen_all_nodes()
         for item in generator:
@@ -66,14 +66,14 @@ class TreeNode:
         assert False, "This should not happen"
 
     def node_before(
-        self, node: TreeNode, descend_condition: Optional[FilterFunction] = None
+        self, node: TreeNode, filter_func: Optional[FilterFunction] = None
     ) -> TreeNode:
         if not self.has_children():
             return self
 
         # TODO: this could be optimized
-        if descend_condition:
-            all_items = list(self.gen_all_nodes_with_condition(descend_condition))
+        if filter_func:
+            all_items = list(self.gen_all_nodes_with_condition(filter_func))
         else:
             all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
