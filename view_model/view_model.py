@@ -190,8 +190,7 @@ class ViewModel:
         return 0
 
     def delete_item(self):
-        node_to_remove = self.selected_node
-        if node_to_remove is not None:
+        if node_to_remove := self.selected_node:
             self._cut_item = node_to_remove
             self.select_previous()
             self.tree_root.remove_node(node_to_remove)
