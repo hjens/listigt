@@ -70,6 +70,12 @@ class ViewModel:
         self._last_item_on_screen = (
                 self._first_item_on_screen + self._num_items_on_screen
         )
+        if self.selected_node and self.hide_complete_items and self.selected_node.data.complete:
+            # Need to temporarily set the selected node to incomplete, or select_next will not work
+            old_selected_node = self.selected_node
+            self.selected_node.data.complete = False
+            self.select_next()
+            old_selected_node.data.complete = True
 
     def select_next(self):
         if not self.selected_node:
