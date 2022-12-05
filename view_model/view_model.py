@@ -209,6 +209,9 @@ class ViewModel:
         self.save_to_file()
 
     def paste_item(self):
+        if self._cut_item is None:
+            return
+
         if self.selected_node:
             self.selected_node.add_sibling(self._cut_item)
         else:
