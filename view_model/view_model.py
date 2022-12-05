@@ -67,6 +67,9 @@ class ViewModel:
 
     def toggle_hide_complete_items(self):
         self.hide_complete_items = not self.hide_complete_items
+        self._last_item_on_screen = (
+                self._first_item_on_screen + self._num_items_on_screen
+        )
 
     def select_next(self):
         if not self.selected_node:
