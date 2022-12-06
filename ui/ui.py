@@ -1,7 +1,7 @@
 import pytermgui as ptg
 from pytermgui import VerticalAlignment
 
-from ui import widgets
+from ui.todo_item_tree import TodoItemTree
 from view_model import view_model
 
 
@@ -20,7 +20,7 @@ def start_ui(vm: view_model.ViewModel):
         manager.layout = _define_layout()
         vm.set_window_height(manager.terminal.height - 8)
 
-        todo_item_tree = widgets.TodoItemTree(vm)
+        todo_item_tree = TodoItemTree(vm)
 
         body_window = ptg.Window(
             todo_item_tree,
@@ -30,7 +30,7 @@ def start_ui(vm: view_model.ViewModel):
 
         manager.add(body_window, animate=False)
 
-        footer_window = ptg.Window("Footer", assign="footer")
+        footer_window = ptg.Window(ptg.InputField(prompt="Search:"), assign="footer")
 
         manager.add(footer_window, animate=False)
 
