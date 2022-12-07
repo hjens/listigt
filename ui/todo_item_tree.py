@@ -80,11 +80,11 @@ class TodoItemTree(ptg.Container):
                 self._update_widgets()
                 return True
             if key == ptg.keys.UP:
-                self._view_model.select_next_search_result()
+                self._view_model.select_previous_search_result()
                 self._update_widgets()
                 return True
             if key == ptg.keys.DOWN:
-                self._view_model.select_previous_search_result()
+                self._view_model.select_next_search_result()
                 self._update_widgets()
                 return True
 
