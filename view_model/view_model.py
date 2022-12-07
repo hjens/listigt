@@ -188,9 +188,11 @@ class ViewModel:
 
     def cancel_search(self):
         self._search_string = None
+        self._search_results = []
 
     def finish_search(self):
         self._search_string = None
+        self._search_results = []
 
     def select_next_search_result(self):
         for i, search_result in enumerate(self._search_results):
