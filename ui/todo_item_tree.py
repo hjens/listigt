@@ -73,10 +73,12 @@ class TodoItemTree(ptg.Container):
             if key == ptg.keys.ESC:
                 self._view_model.cancel_search()
                 self._search_field.select()
+                self._search_field.clear_text()
                 self._update_widgets()
                 return True
             if key == ptg.keys.ENTER:
                 self._view_model.finish_search()
+                self._search_field.clear_text()
                 self._update_widgets()
                 return True
             if key == ptg.keys.UP:

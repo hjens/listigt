@@ -35,3 +35,6 @@ class SearchInput(ptg.InputField):
 
     def _on_type(self):
         self._view_model.update_search(self.value)
+
+    def clear_text(self):
+        self.delete_back(len(self.value))
