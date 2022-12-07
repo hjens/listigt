@@ -28,6 +28,7 @@ class ViewModel:
         self._item_being_edited: Optional[TreeNode] = None
         self.hide_complete_items = False
         self._search_string: Optional[str] = None
+        self._search_results: List[TreeNode] = []
 
         self.set_window_height(0)
 
@@ -56,7 +57,7 @@ class ViewModel:
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
-                is_search_result=(self._search_string and self._search_string in node.data.text)
+                is_search_result=node in self._search_results
             )
 
         items = [list_item_from_node(node) for node in self._all_visible_nodes()]
@@ -181,11 +182,9 @@ class ViewModel:
 
     def update_search(self, search_string: str):
         self._search_string = search_string
-        search_results = self.tree_root.gen_all_nodes_with_condition(self._make_search_filter())
-        try:
-            self.selected_node = next(search_results)
-        except StopIteration:
-            pass
+        self._update_search_results()
+        if self._search_results:
+            self.selected_node = self._search_results[0]
 
     def cancel_search(self):
         self._search_string = None
@@ -194,20 +193,16 @@ class ViewModel:
         self._search_string = None
 
     def select_next_search_result(self):
-        if not self.selected_node:
-            self.selected_node = self.tree_root.first_child()
-        else:
-            self.selected_node = self.tree_root.node_after(
-                self.selected_node, self._make_search_filter()
-            )
+        for i, search_result in enumerate(self._search_results):
+            if search_result == self.selected_node:
+                self.selected_node = self._search_results[(i + 1) % len(self._search_results)]
+                break
 
     def select_previous_search_result(self):
-        if not self.selected_node:
-            self.selected_node = self.tree_root.first_child()
-        else:
-            self.selected_node = self.tree_root.node_before(
-                self.selected_node, self._make_search_filter()
-            )
+        for i, search_result in enumerate(self._search_results):
+            if search_result == self.selected_node:
+                self.selected_node = self._search_results[(i - 1) % len(self._search_results)]
+                break
 
     def _make_search_filter(self) -> FilterFunction:
         def search_condition(node: TreeNode) -> bool:
@@ -216,6 +211,19 @@ class ViewModel:
             return self._search_string in node.data.text
         return search_condition
 
+    def _update_search_results(self):
+        if len(self._search_string) < 3:
+            self._search_results = []
+            return
+
+        search_results = filter(self._make_search_filter(), self.tree_root.gen_all_nodes())
+        def uncollapse_parents(node):
+            if node.parent.data.collapsed:
+                node.parent.data.collapsed = False
+                uncollapse_parents(node.parent)
+        self._search_results = list(search_results)
+        for result in self._search_results:
+            uncollapse_parents(result)
 
     def toggle_complete(self):
         if self.selected_node is None:

@@ -68,20 +68,24 @@ class TodoItemTree(ptg.Container):
             self._search_field.select(0)
             self._view_model.update_search("")
             return True
+        # TODO: refactor this
         if self._view_model.is_searching:
             if key == ptg.keys.ESC:
                 self._view_model.cancel_search()
                 self._search_field.select()
+                self._update_widgets()
                 return True
             if key == ptg.keys.ENTER:
                 self._view_model.finish_search()
-                self._view_model.cancel_search()
+                self._update_widgets()
                 return True
             if key == ptg.keys.UP:
                 self._view_model.select_next_search_result()
+                self._update_widgets()
                 return True
             if key == ptg.keys.DOWN:
                 self._view_model.select_previous_search_result()
+                self._update_widgets()
                 return True
 
         key_handlers = {
