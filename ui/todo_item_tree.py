@@ -4,6 +4,7 @@ import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
 from ui.new_item_input import NewItemInput
+from ui.search_field import SearchInput
 from view_model import view_model
 from view_model.view_model import ListItem
 
@@ -11,9 +12,10 @@ from view_model.view_model import ListItem
 class TodoItemTree(ptg.Container):
     INDENT_SPACES = 3
 
-    def __init__(self, vm: view_model.ViewModel, **attrs: Any):
+    def __init__(self, vm: view_model.ViewModel, search_field: SearchInput, **attrs: Any):
         super().__init__(**attrs)
         self._view_model = vm
+        self._search_field = search_field
 
         self._create_new_item_input_widget()
         self._create_edit_item_widget()
@@ -61,6 +63,26 @@ class TodoItemTree(ptg.Container):
             return self.input_field.handle_key(key)
         if self._view_model.is_editing:
             return self.edit_item_field.handle_key(key)
+
+        if key == "/" and not self._view_model.is_searching:
+            self._search_field.select(0)
+            self._view_model.update_search("")
+            return True
+        if self._view_model.is_searching:
+            if key == ptg.keys.ESC:
+                self._view_model.cancel_search()
+                self._search_field.select()
+                return True
+            if key == ptg.keys.ENTER:
+                self._view_model.finish_search()
+                self._view_model.cancel_search()
+                return True
+            if key == ptg.keys.UP:
+                self._view_model.select_next_search_result()
+                return True
+            if key == ptg.keys.DOWN:
+                self._view_model.select_previous_search_result()
+                return True
 
         key_handlers = {
             "j": lambda: self._view_model.select_next(),
@@ -162,4 +184,5 @@ class TodoItemTree(ptg.Container):
         style = "[inverse]" if highlighted else ""
         symbol = symbol_for_item(item)
         completed_style = "[strikethrough forestgreen]" if item.is_completed else ""
-        return indent + style + completed_style + symbol + " " + item.text
+        search_style = "[yellow]" if item.is_search_result else ""
+        return indent + style + completed_style + search_style + symbol + " " + item.text

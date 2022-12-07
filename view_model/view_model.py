@@ -15,6 +15,7 @@ class ListItem:
     has_children: bool
     is_completed: bool
     is_collapsed: bool
+    is_search_result: bool
 
 
 class ViewModel:
@@ -26,6 +27,7 @@ class ViewModel:
         self._cut_item: Optional[TreeNode] = None
         self._item_being_edited: Optional[TreeNode] = None
         self.hide_complete_items = False
+        self._search_string: Optional[str] = None
 
         self.set_window_height(0)
 
@@ -54,6 +56,7 @@ class ViewModel:
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
+                is_search_result=(self._search_string and self._search_string in node.data.text)
             )
 
         items = [list_item_from_node(node) for node in self._all_visible_nodes()]
@@ -171,6 +174,48 @@ class ViewModel:
     @property
     def is_editing(self):
         return self._item_being_edited is not None
+
+    @property
+    def is_searching(self):
+        return self._search_string is not None
+
+    def update_search(self, search_string: str):
+        self._search_string = search_string
+        search_results = self.tree_root.gen_all_nodes_with_condition(self._make_search_filter())
+        try:
+            self.selected_node = next(search_results)
+        except StopIteration:
+            pass
+
+    def cancel_search(self):
+        self._search_string = None
+
+    def finish_search(self):
+        self._search_string = None
+
+    def select_next_search_result(self):
+        if not self.selected_node:
+            self.selected_node = self.tree_root.first_child()
+        else:
+            self.selected_node = self.tree_root.node_after(
+                self.selected_node, self._make_search_filter()
+            )
+
+    def select_previous_search_result(self):
+        if not self.selected_node:
+            self.selected_node = self.tree_root.first_child()
+        else:
+            self.selected_node = self.tree_root.node_before(
+                self.selected_node, self._make_search_filter()
+            )
+
+    def _make_search_filter(self) -> FilterFunction:
+        def search_condition(node: TreeNode) -> bool:
+            if not self.is_searching:
+                return False
+            return self._search_string in node.data.text
+        return search_condition
+
 
     def toggle_complete(self):
         if self.selected_node is None:

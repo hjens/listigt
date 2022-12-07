@@ -175,6 +175,32 @@ def test_edit(view_model):
 
     assert view_model.selected_node.data.text == "Edited"
 
+def test_is_searching(view_model):
+    assert not view_model.is_searching
+    view_model.update_search("test")
+    assert view_model.is_searching
+    view_model.cancel_search()
+    assert not view_model.is_searching
+
+def test_finish_search(view_model):
+    view_model.update_search("Item 2")
+    view_model.finish_search()
+    assert not view_model.is_searching
+    assert view_model.selected_node.data.text == "Item 2"
+
+def test_select_next_and_previous_search_result(view_model):
+    view_model.update_search("Item 1")
+    assert view_model.is_searching
+    assert view_model.selected_node.data.text == "Item 1"
+    view_model.select_next_search_result()
+    assert view_model.selected_node.data.text == "Item 1.1"
+    view_model.select_next_search_result()
+    assert view_model.selected_node.data.text == "Item 1.1.1"
+    view_model.select_previous_search_result()
+    assert view_model.selected_node.data.text == "Item 1.1"
+    view_model.finish_search()
+    assert view_model.selected_node.data.text == "Item 1.1"
+    assert not view_model.is_searching
 
 def test_toggle_complete(view_model):
     assert not view_model.selected_node.data.complete
