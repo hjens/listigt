@@ -143,6 +143,7 @@ class ViewModel:
     def toggle_collapse_node(self):
         if self.selected_node:
             self.selected_node.data.collapsed = not self.selected_node.data.collapsed
+        self._last_item_on_screen = self._first_item_on_screen + self._num_items_on_screen
         self.save_to_file()
 
     def start_insert(self):
