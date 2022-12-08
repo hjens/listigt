@@ -18,6 +18,12 @@ class ListItem:
     is_search_result: bool
 
 
+@dataclass
+class StateBeforeSearch:
+    selected_node: Optional[TreeNode]
+    collapsed_nodes: List[TreeNode]
+
+
 class ViewModel:
     def __init__(self, tree_root: TreeNode, save_file: Path):
         self._save_file = save_file
@@ -29,6 +35,7 @@ class ViewModel:
         self.hide_complete_items = False
         self._search_string: Optional[str] = None
         self._search_results: List[TreeNode] = []
+        self._state_before_search = StateBeforeSearch(selected_node=None, collapsed_nodes=[])
 
         self.set_window_height(0)
 
@@ -181,6 +188,9 @@ class ViewModel:
         return self._search_string is not None
 
     def update_search(self, search_string: str):
+        if search_string == "" and self._state_before_search.selected_node is None:
+            self._state_before_search.selected_node = self.selected_node
+
         self._search_string = search_string
         self._update_search_results()
         if self._search_results:
@@ -189,6 +199,7 @@ class ViewModel:
     def cancel_search(self):
         self._search_string = None
         self._search_results = []
+        self._restore_search_state()
 
     def finish_search(self):
         self._search_string = None
@@ -219,11 +230,18 @@ class ViewModel:
         def uncollapse_parents(node):
             if node.parent.data.collapsed:
                 node.parent.data.collapsed = False
+                self._state_before_search.collapsed_nodes.append(node.parent)
                 uncollapse_parents(node.parent)
         search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
         self._search_results = list(search_results)
         for result in self._search_results:
             uncollapse_parents(result)
+
+    def _restore_search_state(self):
+        self.selected_node = self._state_before_search.selected_node
+        for node in self._state_before_search.collapsed_nodes:
+            node.data.collapsed = True
+        self._state_before_search = StateBeforeSearch(selected_node=None, collapsed_nodes=[])
 
     def toggle_complete(self):
         if self.selected_node is None:
