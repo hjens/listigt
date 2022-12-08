@@ -206,23 +206,21 @@ class ViewModel:
                 self.selected_node = self._search_results[(i - 1) % len(self._search_results)]
                 break
 
-    def _make_search_filter(self) -> FilterFunction:
-        def search_condition(node: TreeNode) -> bool:
-            if not self.is_searching:
-                return False
-            return self._search_string in node.data.text
-        return search_condition
+    def _is_search_result(self, node: TreeNode) -> bool:
+        if not self.is_searching:
+            return False
+        return self._search_string.lower() in node.data.text.lower()
 
     def _update_search_results(self):
         if len(self._search_string) < 3:
             self._search_results = []
             return
 
-        search_results = filter(self._make_search_filter(), self.tree_root.gen_all_nodes())
         def uncollapse_parents(node):
             if node.parent.data.collapsed:
                 node.parent.data.collapsed = False
                 uncollapse_parents(node.parent)
+        search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
         self._search_results = list(search_results)
         for result in self._search_results:
             uncollapse_parents(result)
