@@ -67,6 +67,7 @@ class TodoItemTree(ptg.Container):
         if key == "/" and not self._view_model.is_searching:
             self._search_field.select(0)
             self._view_model.update_search("")
+            self._search_field.prompt  = "Search: "
             return True
         if self._view_model.is_searching:
             if self._search_field.handle_key(key):

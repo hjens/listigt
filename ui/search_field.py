@@ -13,7 +13,7 @@ class SearchInput(ptg.InputField):
         **attrs: Any,
     ):
         super().__init__(**attrs)
-        self.prompt = "Search: "
+        self.prompt = ""
         self._view_model = view_model
 
     def handle_key(self, key: str) -> bool:
@@ -43,7 +43,6 @@ class SearchInput(ptg.InputField):
             return True
         if key == ptg.keys.ESC:
             self._view_model.cancel_search()
-            self.select()
             self.clear_text()
             return True
         return False
@@ -53,3 +52,5 @@ class SearchInput(ptg.InputField):
 
     def clear_text(self):
         self.delete_back(len(self.value))
+        self.prompt = ""
+        self.select()
