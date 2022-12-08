@@ -125,6 +125,7 @@ class ViewModel:
             return
 
         self.tree_root = node
+        self.tree_root.data.collapsed = False
         if self.tree_root.has_children():
             self.selected_node = self.tree_root.first_child()
         else:
