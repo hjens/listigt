@@ -37,9 +37,6 @@ def start_ui(vm: view_model.ViewModel):
         manager.add(footer_window, animate=False)
 
         def handle_key(key):
-            if search_input.handle_key(key):
-                todo_item_tree._update_widgets()  # TODO: put this somewhere better
-                return True
             if todo_item_tree.handle_key(key):
                 return True
             if key == "q":

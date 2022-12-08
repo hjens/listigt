@@ -31,6 +31,21 @@ class SearchInput(ptg.InputField):
         if key == ptg.keys.CTRL_V:
             self.insert_text(pyperclip.paste())
             return True
+        if key == ptg.keys.ENTER:
+            self._view_model.finish_search()
+            self.clear_text()
+            return True
+        if key == ptg.keys.UP:
+            self._view_model.select_previous_search_result()
+            return True
+        if key == ptg.keys.DOWN:
+            self._view_model.select_next_search_result()
+            return True
+        if key == ptg.keys.ESC:
+            self._view_model.cancel_search()
+            self.select()
+            self.clear_text()
+            return True
         return False
 
     def _on_type(self):
