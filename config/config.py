@@ -11,9 +11,9 @@ CONFIG_FILE = Path("config.toml")
 
 class ConfigManager:
     def __init__(self):
-        self._load_config()
         self._selection_index = -1
         self._hide_complete_items = False
+        self._load_config()
 
     @property
     def selection_index(self) -> Optional[int]:
