@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
+from config import config
 from todo_list.todo_list import TodoItem
 from todo_list.tree import TreeNode, FilterFunction
 
@@ -25,14 +26,14 @@ class StateBeforeSearch:
 
 
 class ViewModel:
-    def __init__(self, tree_root: TreeNode, save_file: Path):
+    def __init__(self, tree_root: TreeNode, save_file: Path, config_manager: config.ConfigManager):
+        self._config_manager = config_manager
         self._save_file = save_file
         self.tree_root = tree_root
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
         self._cut_item: Optional[TreeNode] = None
         self._item_being_edited: Optional[TreeNode] = None
-        self.hide_complete_items = False
         self._search_string: Optional[str] = None
         self._search_results: List[TreeNode] = []
         self._state_before_search = StateBeforeSearch(selected_node=None, collapsed_nodes=[])
@@ -45,6 +46,7 @@ class ViewModel:
     def save_to_file(self):
         with open(self._save_file, "w") as f:
             f.write("\n".join([str(item) for item in self.tree_root.root().children]))
+        self._config_manager.save_config()
 
     def set_window_height(self, height: int):
         self._num_items_on_screen = height
@@ -77,11 +79,11 @@ class ViewModel:
         return self.tree_root.data.text
 
     def toggle_hide_complete_items(self):
-        self.hide_complete_items = not self.hide_complete_items
+        self._config_manager.hide_complete_items = not self._config_manager.hide_complete_items
         self._last_item_on_screen = (
                 self._first_item_on_screen + self._num_items_on_screen
         )
-        if self.selected_node and self.hide_complete_items and self.selected_node.data.complete:
+        if self.selected_node and self._config_manager.hide_complete_items and self.selected_node.data.complete:
             # Need to temporarily set the selected node to incomplete, or select_next will not work
             old_selected_node = self.selected_node
             self.selected_node.data.complete = False
@@ -251,7 +253,7 @@ class ViewModel:
 
         # Need to move selection before completing, or select_previous will not work
         node_to_complete = self.selected_node
-        if self.hide_complete_items:
+        if self._config_manager.hide_complete_items:
             self.select_previous()
 
         if not node_to_complete.data.complete:
@@ -316,7 +318,7 @@ class ViewModel:
     def _make_filter_func(self) -> FilterFunction:
         def filter_func(node: TreeNode) -> bool:
             # Always hide completed items if hide_complete is set
-            if self.hide_complete_items and node.data.complete:
+            if self._config_manager.hide_complete_items and node.data.complete:
                 return False
             # Hide children of collapsed nodes
             if node.parent and node.parent.data.collapsed:
