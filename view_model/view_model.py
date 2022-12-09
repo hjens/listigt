@@ -26,7 +26,9 @@ class StateBeforeSearch:
 
 
 class ViewModel:
-    def __init__(self, tree_root: TreeNode, save_file: Path, config_manager: config.ConfigManager):
+    def __init__(
+        self, tree_root: TreeNode, save_file: Path, config_manager: config.ConfigManager
+    ):
         self._config_manager = config_manager
         self._save_file = save_file
         self.tree_root = tree_root
@@ -36,7 +38,9 @@ class ViewModel:
         self._item_being_edited: Optional[TreeNode] = None
         self._search_string: Optional[str] = None
         self._search_results: List[TreeNode] = []
-        self._state_before_search = StateBeforeSearch(selected_node=None, collapsed_nodes=[])
+        self._state_before_search = StateBeforeSearch(
+            selected_node=None, collapsed_nodes=[]
+        )
 
         self.set_window_height(0)
 
@@ -46,7 +50,6 @@ class ViewModel:
     def save_to_file(self):
         with open(self._save_file, "w") as f:
             f.write("\n".join([str(item) for item in self.tree_root.root().children]))
-        self._config_manager.save_config()
 
     def set_window_height(self, height: int):
         self._num_items_on_screen = height
@@ -66,7 +69,7 @@ class ViewModel:
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
-                is_search_result=node in self._search_results
+                is_search_result=node in self._search_results,
             )
 
         items = [list_item_from_node(node) for node in self._all_visible_nodes()]
@@ -79,11 +82,17 @@ class ViewModel:
         return self.tree_root.data.text
 
     def toggle_hide_complete_items(self):
-        self._config_manager.hide_complete_items = not self._config_manager.hide_complete_items
-        self._last_item_on_screen = (
-                self._first_item_on_screen + self._num_items_on_screen
+        self._config_manager.hide_complete_items = (
+            not self._config_manager.hide_complete_items
         )
-        if self.selected_node and self._config_manager.hide_complete_items and self.selected_node.data.complete:
+        self._last_item_on_screen = (
+            self._first_item_on_screen + self._num_items_on_screen
+        )
+        if (
+            self.selected_node
+            and self._config_manager.hide_complete_items
+            and self.selected_node.data.complete
+        ):
             # Need to temporarily set the selected node to incomplete, or select_next will not work
             old_selected_node = self.selected_node
             self.selected_node.data.complete = False
@@ -145,8 +154,9 @@ class ViewModel:
     def toggle_collapse_node(self):
         if self.selected_node:
             self.selected_node.data.collapsed = not self.selected_node.data.collapsed
-        self._last_item_on_screen = self._first_item_on_screen + self._num_items_on_screen
-        self.save_to_file()
+        self._last_item_on_screen = (
+            self._first_item_on_screen + self._num_items_on_screen
+        )
 
     def start_insert(self):
         self._is_inserting = True
@@ -168,8 +178,6 @@ class ViewModel:
         self.selected_node = new_node
         self._last_item_on_screen += 1
 
-        self.save_to_file()
-
     def start_edit(self):
         if self.selected_node:
             self._item_being_edited = copy.deepcopy(self.selected_node)
@@ -181,7 +189,6 @@ class ViewModel:
         assert self.is_editing
         self.selected_node.data.text = new_text
         self._item_being_edited = None
-        self.save_to_file()
 
     @property
     def is_editing(self):
@@ -212,13 +219,17 @@ class ViewModel:
     def select_next_search_result(self):
         for i, search_result in enumerate(self._search_results):
             if search_result == self.selected_node:
-                self.selected_node = self._search_results[(i + 1) % len(self._search_results)]
+                self.selected_node = self._search_results[
+                    (i + 1) % len(self._search_results)
+                ]
                 break
 
     def select_previous_search_result(self):
         for i, search_result in enumerate(self._search_results):
             if search_result == self.selected_node:
-                self.selected_node = self._search_results[(i - 1) % len(self._search_results)]
+                self.selected_node = self._search_results[
+                    (i - 1) % len(self._search_results)
+                ]
                 break
 
     def _is_search_result(self, node: TreeNode) -> bool:
@@ -236,6 +247,7 @@ class ViewModel:
                 node.parent.data.collapsed = False
                 self._state_before_search.collapsed_nodes.append(node.parent)
                 uncollapse_parents(node.parent)
+
         search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
         self._search_results = list(search_results)
         for result in self._search_results:
@@ -245,7 +257,9 @@ class ViewModel:
         self.selected_node = self._state_before_search.selected_node
         for node in self._state_before_search.collapsed_nodes:
             node.data.collapsed = True
-        self._state_before_search = StateBeforeSearch(selected_node=None, collapsed_nodes=[])
+        self._state_before_search = StateBeforeSearch(
+            selected_node=None, collapsed_nodes=[]
+        )
 
     def toggle_complete(self):
         if self.selected_node is None:
@@ -265,8 +279,6 @@ class ViewModel:
         else:
             node_to_complete.data.complete = False
 
-        self.save_to_file()
-
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self._all_visible_nodes()):
             if self.selected_node and (item == self.selected_node):
@@ -281,8 +293,6 @@ class ViewModel:
             if not self.tree_root.has_children():
                 self.selected_node = None
 
-        self.save_to_file()
-
     def paste_item(self):
         if self._cut_item is None:
             return
@@ -292,8 +302,6 @@ class ViewModel:
         else:
             self.tree_root.add_child(self._cut_item)
         self._cut_item = None
-
-        self.save_to_file()
 
     def _update_scrolling(self, num_lines: int):
         if num_lines <= self._num_items_on_screen:
