@@ -106,6 +106,20 @@ class TreeNode:
             for node in child.gen_all_nodes_with_condition(filter_function):
                 yield node
 
+    def node_at_index(self, index: int) -> Optional[TreeNode]:
+        for i, node_i in enumerate(self.gen_all_nodes()):
+            if i == index:
+                return node_i
+        return None
+
+    def index_for_node(self, node: TreeNode) -> int:
+        for i, node_i in enumerate(self.gen_all_nodes()):
+            if node_i == node:
+                return i
+        raise ValueError(
+            "Can not find index for node, because node does not exist in this tree."
+        )
+
     @property
     def parent(self) -> TreeNode:
         return self._parent

@@ -2,26 +2,26 @@ from pathlib import Path
 from typing import Optional
 
 import toml
-from attr import dataclass
 
 
 CONFIG_FILE = Path("config.toml")
 
 
 
+# TODO: refactor to avoid code repetition
 class ConfigManager:
     def __init__(self):
-        self._selection_index = -1
+        self._root_node_index = -1
         self._hide_complete_items = False
         self._load_config()
 
     @property
-    def selection_index(self) -> int:
-        return None if self._selection_index < 0 else self._selection_index
+    def root_node_index(self) -> int:
+        return None if self._root_node_index < 0 else self._root_node_index
 
-    @selection_index.setter
-    def selection_index(self, new_value: Optional[int]):
-        self._selection_index = -1 if new_value is None else new_value
+    @root_node_index.setter
+    def root_node_index(self, new_value: Optional[int]):
+        self._root_node_index = -1 if new_value is None else new_value
 
     @property
     def hide_complete_items(self) -> bool:
@@ -34,8 +34,8 @@ class ConfigManager:
     def _load_config(self):
         try:
             toml_data = toml.load(CONFIG_FILE)
-            self._selection_index = toml_data["State"].get(
-                "selection_index", None
+            self._root_node_index = toml_data["State"].get(
+                "root_index", None
             )
             self._hide_complete_items = toml_data["State"].get(
                 "hide_complete_items", True
@@ -50,7 +50,7 @@ class ConfigManager:
             toml.dump(
                 {
                     "State": {
-                        "selection_index": self._selection_index,
+                        "root_index": self._root_node_index,
                         "hide_complete_items": self._hide_complete_items,
                     }
                 },

@@ -41,6 +41,7 @@ class ViewModel:
         self._state_before_search = StateBeforeSearch(
             selected_node=None, collapsed_nodes=[]
         )
+        self._restore_saved_root_node()
 
         self.set_window_height(0)
 
@@ -55,6 +56,12 @@ class ViewModel:
         self._num_items_on_screen = height
         self._first_item_on_screen = 0
         self._last_item_on_screen = self._num_items_on_screen
+
+    def _restore_saved_root_node(self):
+        root_index = self._config_manager.root_node_index
+        root_node = self.tree_root.root().node_at_index(root_index)
+        if root_node:
+            self.set_as_root(root_node)
 
     @property
     def num_items_on_screen(self) -> int:
@@ -141,6 +148,9 @@ class ViewModel:
             self.selected_node = self.tree_root.first_child()
         else:
             self.selected_node = None
+        self._config_manager.root_node_index = self.tree_root.root().index_for_node(
+            self.tree_root
+        )
 
     def move_root_upwards(self):
         if self.tree_root.parent:
@@ -150,6 +160,12 @@ class ViewModel:
             self._last_item_on_screen = (
                 self._first_item_on_screen + self._num_items_on_screen
             )
+            try:
+                self._config_manager.root_node_index = (
+                    self.tree_root.root().index_for_node(self.tree_root)
+                )
+            except ValueError:
+                pass
 
     def toggle_collapse_node(self):
         if self.selected_node:

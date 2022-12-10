@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from config import config
 from todo_list.todo_list import TodoItem
 from todo_list.tree import TreeNode
 from view_model.view_model import ViewModel
@@ -33,7 +34,7 @@ def save_file():
 
 @pytest.fixture
 def view_model(tree_root, save_file):
-    vm = ViewModel(tree_root, save_file)
+    vm = ViewModel(tree_root, save_file, config.ConfigManager())
     vm.set_window_height(10)
 
     def mock_save():
@@ -70,7 +71,7 @@ def test_list_items(view_model):
 
 
 def test_list_items_hide_complete(view_model):
-    assert not view_model.hide_complete_items
+    assert not view_model._config_manager.hide_complete_items
     view_model.toggle_hide_complete_items()
     list_items = view_model.list_items()
     expected_items = [

@@ -178,6 +178,18 @@ def test_gen_all_nodes_with_complex_condition(tree_and_nodes):
         assert output.data == expected
 
 
+
+def test_node_at_index(tree_and_nodes):
+    root, nodes = tree_and_nodes
+    assert root.node_at_index(3) == nodes["leaf1"]
+    assert root.node_at_index(100) is None
+
+
+def test_index_for_node(tree_and_nodes):
+    root, nodes = tree_and_nodes
+    assert root.index_for_node(nodes["leaf1"]) == 3
+
+
 def test_remove_child():
     # TODO: use fixture
     root = TreeNode("root")

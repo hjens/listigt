@@ -1,3 +1,4 @@
+import atexit
 from pathlib import Path
 
 from config import config
@@ -16,6 +17,12 @@ def main():
     vm = view_model.ViewModel(
         tree_root=tree, save_file=SAVE_FILE, config_manager=config_manager
     )
+
+    def exit_handler():
+        config_manager.save_config()
+        vm.save_to_file()
+    atexit.register(exit_handler)
+
     ui.start_ui(vm)
 
 
