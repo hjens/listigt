@@ -75,7 +75,8 @@ class TreeNode:
                     return next(generator)
                 except StopIteration:
                     return self.first_child(filter_func)
-        assert False, "This should not happen"
+        # Did not find the given node in the sub-tree
+        return self
 
     def node_before(
         self, node: TreeNode, filter_func: Optional[FilterFunction] = None
@@ -95,7 +96,8 @@ class TreeNode:
                     return next(generator)
                 except StopIteration:
                     return all_items[-1]
-        assert False, "This should not happen"
+        # Did not find the given node in the sub-tree
+        return self
 
     def change_level(self, delta: int):
         self._level += delta
