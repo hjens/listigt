@@ -115,10 +115,25 @@ def test_select_top_bottom_middle(view_model):
     assert view_model.selected_node.data.text == "Item 1.1"
 
 
+def test_select_first_node(view_model):
+    assert view_model.tree_root.data.text == "root"
+    view_model.selected_node = None
+    view_model.select_first()
+    assert view_model.selected_node.data.text == "Item 1"
+
+
 def test_set_as_root(view_model):
     view_model.set_as_root(view_model.tree_root.first_child())
     assert view_model.tree_root.data.text == "Item 1"
     assert view_model.selected_node.data.text == "Item 1.1"
+
+
+def test_set_as_root_when_first_child_is_complete(view_model):
+    view_model._config_manager.hide_complete_items = True
+    assert view_model.selected_node.data.text == "Item 1"
+    view_model.set_as_root(view_model.selected_node)
+    assert view_model.selected_node.data.text == "Item 1.2"
+    assert not view_model.selected_node.data.complete
 
 
 def test_move_root_upwards(view_model):

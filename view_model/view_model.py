@@ -46,7 +46,7 @@ class ViewModel:
         self.set_window_height(0)
 
         if self.tree_root.children:
-            self.selected_node = self.tree_root.first_child()
+            self.selected_node = self.tree_root.first_child(self._make_filter_func())
 
     def save_to_file(self):
         with open(self._save_file, "w") as f:
@@ -108,7 +108,7 @@ class ViewModel:
 
     def select_next(self):
         if not self.selected_node:
-            self.selected_node = self.tree_root.first_child()
+            self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
             self.selected_node = self.tree_root.node_after(
                 self.selected_node, self._make_filter_func()
@@ -116,7 +116,7 @@ class ViewModel:
 
     def select_previous(self):
         if not self.selected_node:
-            self.selected_node = self.tree_root.first_child()
+            self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
             self.selected_node = self.tree_root.node_before(
                 self.selected_node, self._make_filter_func()
@@ -138,6 +138,9 @@ class ViewModel:
         if len(nodes_list) >= middle_index:
             self.selected_node = nodes_list[middle_index]
 
+    def select_first(self):
+        self.selected_node = self.tree_root.first_child(self._make_filter_func())
+
     def set_as_root(self, node: Optional[TreeNode]):
         if node is None:
             return
@@ -145,7 +148,7 @@ class ViewModel:
         self.tree_root = node
         self.tree_root.data.collapsed = False
         if self.tree_root.has_children():
-            self.selected_node = self.tree_root.first_child()
+            self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
             self.selected_node = None
         self._config_manager.root_node_index = self.tree_root.root().index_for_node(

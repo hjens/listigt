@@ -37,15 +37,27 @@ class TreeNode:
         for child in self.children:
             child.remove_node(node)
 
-    def first_child(self) -> Optional[TreeNode]:
-        if self.children:
-            return self.children[0]
-        return None
+    def first_child(
+        self, filter_func: Optional[FilterFunction] = None
+    ) -> Optional[TreeNode]:
+        try:
+            if filter_func:
+                return [child for child in self.children if filter_func(child)][0]
+            else:
+                return self.children[0]
+        except IndexError:
+            return None
 
-    def last_child(self) -> Optional[TreeNode]:
-        if self.children:
-            return self.children[-1]
-        return None
+    def last_child(
+        self, filter_func: Optional[FilterFunction] = None
+    ) -> Optional[TreeNode]:
+        try:
+            if filter_func:
+                return [child for child in self.children if filter_func(child)][-1]
+            else:
+                return self.children[-1]
+        except IndexError:
+            return None
 
     def node_after(
         self, node: TreeNode, filter_func: Optional[FilterFunction] = None
@@ -62,7 +74,7 @@ class TreeNode:
                 try:
                     return next(generator)
                 except StopIteration:
-                    return self.children[0]
+                    return self.first_child(filter_func)
         assert False, "This should not happen"
 
     def node_before(
