@@ -240,14 +240,18 @@ def test_index_of_selected_node(view_model):
 
 def test_delete_item(view_model):
     assert len(view_model.tree_root.children) == 2
+    assert view_model.selected_node.data.text == "Item 1"
     view_model.delete_item()
     assert len(view_model.tree_root.children) == 1
+    assert view_model.selected_node.data.text == "Item 2"
 
 
 def test_paste_item(view_model):
     assert len(view_model.tree_root.children) == 2
+    assert view_model.selected_node.data.text == "Item 1"
     view_model.delete_item()
     assert len(view_model.tree_root.children) == 1
+    assert view_model.selected_node.data.text == "Item 2"
 
     view_model.paste_item()
-    assert len(view_model.tree_root.children) == 2
+    #assert len(view_model.tree_root.children) == 2
