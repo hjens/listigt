@@ -42,7 +42,10 @@ class TodoItemTree(ptg.Container):
             self._update_widgets()
 
         def on_new_item_cancel(text):
-            self._view_model.insert_item(text)
+            if text:
+                self._view_model.insert_item(text)
+            else:
+                self._view_model.cancel_insert()
             self._update_widgets()
 
         self.input_field = NewItemInput(
