@@ -26,7 +26,7 @@ class TodoItemTree(ptg.Container):
             self._view_model.finish_edit(text)
             self._update_widgets()
 
-        def on_edit_item_cancel():
+        def on_edit_item_cancel(text):
             self._view_model.cancel_edit()
             self._update_widgets()
 
@@ -38,9 +38,11 @@ class TodoItemTree(ptg.Container):
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
             self._update_widgets()
+            self._view_model.start_insert()
+            self._update_widgets()
 
-        def on_new_item_cancel():
-            self._view_model.cancel_insert()
+        def on_new_item_cancel(text):
+            self._view_model.insert_item(text)
             self._update_widgets()
 
         self.input_field = NewItemInput(

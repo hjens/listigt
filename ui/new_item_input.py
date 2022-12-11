@@ -8,7 +8,7 @@ class NewItemInput(ptg.InputField):
     def __init__(
         self,
         on_submit: Callable[[str], None],
-        on_cancel: Callable[[None], None],
+        on_cancel: Callable[[str], None],
         **attrs: Any,
     ):
         super().__init__(**attrs)
@@ -28,7 +28,7 @@ class NewItemInput(ptg.InputField):
             self.delete_back(len(self.value))
             return True
         if key == ptg.keys.ESC:
-            self.on_cancel()
+            self.on_cancel(self.value)
             self.delete_back(len(self.value))
             return True
         if key == ptg.keys.CTRL_V:
