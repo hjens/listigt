@@ -85,9 +85,11 @@ def test_list_items_hide_complete(view_model):
         assert result.text == expected
 
 def test_list_title(view_model):
-    assert view_model.list_title() == "Toppnivå"
+    assert view_model.list_title() == ("Toppnivå", "")
     view_model.set_as_root(view_model.tree_root.first_child())
-    assert view_model.list_title() == "Item 1"
+    assert view_model.list_title() == ("Item 1", "")
+    view_model.set_as_root(view_model.tree_root.first_child())
+    assert view_model.list_title() == ("Item 1.1", "Item 1 > ")
 
 
 def test_select_next(view_model):

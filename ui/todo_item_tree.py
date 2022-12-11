@@ -58,7 +58,7 @@ class TodoItemTree(ptg.Container):
             for _ in range(self._view_model.num_items_on_screen)
         ]
         self._title_label = ptg.Label(
-            self._view_model.list_title(), parent_align=HorizontalAlignment.LEFT
+            self._view_model.list_title()[0], parent_align=HorizontalAlignment.LEFT
         )
         self.set_widgets([self._title_label, *self._item_labels])
         self._update_widgets()
@@ -111,8 +111,9 @@ class TodoItemTree(ptg.Container):
                 else:
                     label.value = ""
 
+            list_title, breadcrumbs = self._view_model.list_title()
             self._title_label.value = (
-                f"[bold primary]{self._view_model.list_title().upper()}"
+                f"[gray]{breadcrumbs}[bold primary]{list_title}"
             )
 
         def show_or_hide_input_field(list_items):

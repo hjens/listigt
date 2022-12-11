@@ -1,7 +1,7 @@
 import copy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from config import config
 from todo_list.todo_list import TodoItem
@@ -83,10 +83,20 @@ class ViewModel:
         self._update_scrolling(len(items))
         return items[self._first_item_on_screen : self._last_item_on_screen]
 
-    def list_title(self) -> str:
-        if self.tree_root == self.tree_root.root():
-            return "Toppnivå"
-        return self.tree_root.data.text
+    def list_title(self) -> Tuple[str, str]:
+        top_level = self.tree_root.root()
+        breadcrumbs = ""
+        if self.tree_root == top_level:
+            return "Toppnivå", breadcrumbs
+        node = self.tree_root
+        list_title = node.data.text
+        while True:
+            node = node.parent
+            if node != top_level:
+                breadcrumbs = node.data.text + " > " + breadcrumbs
+            else:
+                break
+        return list_title, breadcrumbs
 
     def toggle_hide_complete_items(self):
         self._config_manager.hide_complete_items = (
