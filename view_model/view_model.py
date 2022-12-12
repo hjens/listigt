@@ -199,13 +199,27 @@ class ViewModel:
 
     def insert_item(self, item_text: str):
         new_node = TreeNode(data=TodoItem(item_text))
-        if self.selected_node:
-            self.selected_node.add_sibling(new_node)
+        if selected_node := self.selected_node:
+            should_add_node_as_child = (
+                selected_node.has_children() and not selected_node.data.collapsed
+            )
+            if should_add_node_as_child:
+                selected_node.prepend_child(new_node)
+            else:
+                selected_node.add_sibling(new_node)
         else:
-            self.tree_root.add_child(new_node)
+            self.tree_root.append_child(new_node)
         self._is_inserting = False
         self.selected_node = new_node
         self._last_item_on_screen += 1
+
+    def insertion_indent(self) -> int:
+        if selected_node := self.selected_node:
+            indent = selected_node.level - self.tree_root.level
+            if selected_node.has_children() and not selected_node.data.collapsed:
+                return indent
+            return indent - 1
+        return 0
 
     def start_edit(self):
         if self.selected_node:
@@ -330,7 +344,7 @@ class ViewModel:
         if self.selected_node:
             self.selected_node.add_sibling(self._cut_item)
         else:
-            self.tree_root.add_child(self._cut_item)
+            self.tree_root.append_child(self._cut_item)
         self._cut_item = None
 
     def _update_scrolling(self, num_lines: int):

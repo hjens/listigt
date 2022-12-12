@@ -24,13 +24,13 @@ def tree_and_nodes():
     sub_branch = TreeNode("sub_branch")
     leaf3 = TreeNode("leaf3")
     leaf4 = TreeNode("leaf4")
-    root.add_child(branch1)
-    root.add_child(branch2)
-    root.add_child(leaf2, after_child=branch1)
-    branch1.add_child(sub_branch)
-    sub_branch.add_child(leaf3)
-    branch1.add_child(leaf1)
-    branch2.add_child(leaf4)
+    root.append_child(branch1)
+    root.append_child(branch2)
+    root.append_child(leaf2, after_child=branch1)
+    branch1.append_child(sub_branch)
+    sub_branch.append_child(leaf3)
+    branch1.append_child(leaf1)
+    branch2.append_child(leaf4)
 
     nodes = {
         "root": root,
@@ -73,12 +73,18 @@ def test_add_sibling():
     branch1 = TreeNode("branch1")
     branch2 = TreeNode("branch2")
 
-    root.add_child(branch1)
+    root.append_child(branch1)
     branch1.add_sibling(branch2)
 
     assert root.children == [branch1, branch2]
     assert not branch1.children
     assert not branch2.children
+
+def test_prepend_child(tree_and_nodes):
+    root, nodes = tree_and_nodes
+    nodes["branch1"].prepend_child(TreeNode("new_node"))
+
+    assert nodes["branch1"].first_child().data == "new_node"
 
 
 def test_node_after(tree_and_nodes):
@@ -120,10 +126,10 @@ def test_change_level():
     branch2 = TreeNode("branch2")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.add_child(branch1)
-    root.add_child(branch2)
-    branch1.add_child(leaf1)
-    leaf1.add_child(leaf2)
+    root.append_child(branch1)
+    root.append_child(branch2)
+    branch1.append_child(leaf1)
+    leaf1.append_child(leaf2)
 
     root.change_level(-1)
 
@@ -197,10 +203,10 @@ def test_remove_child():
     branch2 = TreeNode("branch2")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.add_child(branch1)
-    root.add_child(branch2)
-    branch1.add_child(leaf1)
-    leaf1.add_child(leaf2)
+    root.append_child(branch1)
+    root.append_child(branch2)
+    branch1.append_child(leaf1)
+    leaf1.append_child(leaf2)
 
     assert leaf1 in branch1.children
     root.remove_node(leaf1)
@@ -215,8 +221,8 @@ def test_to_str():
     root = TreeNode("root")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.add_child(leaf1)
-    root.add_child(leaf2)
+    root.append_child(leaf1)
+    root.append_child(leaf2)
 
     expected = "- root\n  - leaf1\n  - leaf2"
 

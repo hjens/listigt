@@ -122,12 +122,7 @@ class TodoItemTree(ptg.Container):
             if input_field_visible and not self._view_model.is_inserting:
                 self.set_widgets([w for w in self._widgets if w != self.input_field])
             elif self._view_model.is_inserting and not input_field_visible:
-                try:
-                    indent = list_items[
-                        self._view_model.index_of_selected_node()
-                    ].indentation_level
-                except IndexError:
-                    indent = 0
+                indent = self._view_model.insertion_indent()
                 self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
 
                 if self._view_model.selected_node is None:

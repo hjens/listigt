@@ -180,9 +180,21 @@ def test_edit_start_cancel(view_model):
 
 
 def test_insert_item(view_model):
+    # Node has children, so new item should also be a child
+    view_model.set_as_root(view_model.tree_root.first_child())
+    assert view_model.selected_node.data.text == "Item 1.1"
     view_model.insert_item("New item")
+    assert view_model.selected_node.data.text == "New item"
+    assert view_model.selected_node.parent.data.text == "Item 1.1"
 
-    assert view_model.tree_root.children[1].data.text == "New item"
+    # Node has no children, so new item should be a sibling
+    view_model.set_as_root(view_model.selected_node.first_child())
+    assert view_model.selected_node.data.text == "New item"
+    view_model.insert_item("New item 2")
+    assert view_model.selected_node.data.text == "New item 2"
+    assert view_model.selected_node.parent.data.text == "Item 1.1"
+
+    assert not view_model.is_inserting
 
 
 def test_edit(view_model):

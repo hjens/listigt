@@ -15,7 +15,12 @@ class TreeNode:
         self._level: int = level
         self._id = uuid.uuid1()
 
-    def add_child(self, child: TreeNode, after_child: Optional[TreeNode] = None):
+    def prepend_child(self, child: TreeNode):
+        self._children.insert(0, child)
+        child._level = self._level + 1
+        child._parent = self
+
+    def append_child(self, child: TreeNode, after_child: Optional[TreeNode] = None):
         if after_child:
             index = self.children.index(after_child)
             self.children.insert(index + 1, child)
@@ -28,7 +33,7 @@ class TreeNode:
         return len(self.children) > 0
 
     def add_sibling(self, new_node: TreeNode):
-        self.parent.add_child(new_node, after_child=self)
+        self.parent.append_child(new_node, after_child=self)
 
     def remove_node(self, node: TreeNode):
         if node in self._children:
@@ -199,7 +204,7 @@ class TreeNode:
                     for _ in range(current_level - node.level):
                         insert_point = insert_point.parent
                 current_level = node.level
-                insert_point.add_child(node)
+                insert_point.append_child(node)
             except ValueError as e:
                 continue
 
