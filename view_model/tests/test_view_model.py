@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -268,4 +269,24 @@ def test_paste_item(view_model):
     assert view_model.selected_node.data.text == "Item 2"
 
     view_model.paste_item()
-    #assert len(view_model.tree_root.children) == 2
+
+
+def test_undo(view_model):
+    original_tree = deepcopy(view_model.tree_root.root())
+    assert original_tree.is_equivalent_to(view_model.tree_root.root())
+
+    view_model.select_next()
+    view_model.insert_item("Test")
+    assert not original_tree.is_equivalent_to(view_model.tree_root.root())
+    view_model.undo()
+    assert original_tree.is_equivalent_to(view_model.tree_root.root())
+
+    view_model.select_next()
+    view_model.select_next()
+    view_model.delete_item()
+    assert not original_tree.is_equivalent_to(view_model.tree_root.root())
+    view_model.undo()
+    assert original_tree.is_equivalent_to(view_model.tree_root.root())
+
+    view_model.undo()
+    assert original_tree.is_equivalent_to(view_model.tree_root.root())
