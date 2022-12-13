@@ -281,6 +281,7 @@ def test_undo(view_model):
     view_model.undo()
     assert original_tree.is_equivalent_to(view_model.tree_root.root())
 
+    view_model.select_first()
     view_model.select_next()
     view_model.select_next()
     view_model.delete_item()

@@ -1,4 +1,4 @@
-from copy import deepcopy
+import copy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -25,13 +25,6 @@ class StateBeforeSearch:
     collapsed_nodes: List[TreeNode]
 
 
-@dataclass
-class UndoStackState:
-    full_tree: TreeNode
-    selected_node_index: int
-    tree_root_index: int
-
-
 class ViewModel:
     def __init__(
         self, tree_root: TreeNode, save_file: Path, config_manager: config.ConfigManager
@@ -55,7 +48,7 @@ class ViewModel:
         if self.tree_root.children:
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
 
-        self._undo_stack: List[UndoStackState] = []
+        self._undo_stack: List[TreeNode] = []
 
     def save_to_file(self):
         with open(self._save_file, "w") as f:
@@ -359,17 +352,25 @@ class ViewModel:
         self._cut_item = None
 
     def undo(self):
-        try:
-            undo_state = self._undo_stack.pop()
-            self.tree_root = undo_state.full_tree
-            tree_root_node = self.tree_root.node_at_index(undo_state.tree_root_index)
-            self.set_as_root(tree_root_node)
+        if not self._undo_stack:
+            return
+
+        tree_root_index = self.tree_root.root().index_for_node(self.tree_root)
+        selected_node_index = (
+            None
+            if self.selected_node is None
+            else self.tree_root.root().index_for_node(self.selected_node)
+        )
+
+        undo_state = self._undo_stack.pop()
+        self.tree_root = undo_state
+
+        if tree_root_index:
+            self.set_as_root(self.tree_root.root().node_at_index(tree_root_index))
+        if selected_node_index:
             self.selected_node = self.tree_root.root().node_at_index(
-                undo_state.selected_node_index
+                selected_node_index
             )
-        except IndexError:
-            # Undo stack is empty
-            pass
 
     def _update_scrolling(self, num_lines: int):
         if num_lines <= self._num_items_on_screen:
@@ -407,13 +408,5 @@ class ViewModel:
         return filter_func
 
     def _push_undo_state(self):
-        saved_tree = deepcopy(self.tree_root.root())
-        selected_node_index = self.tree_root.root().index_for_node(self.selected_node)
-        tree_root_index = self.tree_root.root().index_for_node(self.tree_root)
-        self._undo_stack.append(
-            UndoStackState(
-                full_tree=saved_tree,
-                selected_node_index=selected_node_index,
-                tree_root_index=tree_root_index,
-            )
-        )
+        saved_tree = copy.deepcopy(self.tree_root.root())
+        self._undo_stack.append(saved_tree)

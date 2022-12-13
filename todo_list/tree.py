@@ -131,13 +131,11 @@ class TreeNode:
                 return node_i
         return None
 
-    def index_for_node(self, node: TreeNode) -> int:
+    def index_for_node(self, node: TreeNode) -> Optional[int]:
         for i, node_i in enumerate(self.gen_all_nodes()):
             if node_i == node:
                 return i
-        raise ValueError(
-            "Can not find index for node, because node does not exist in this tree."
-        )
+        return None
 
     @property
     def parent(self) -> TreeNode:
@@ -179,7 +177,8 @@ class TreeNode:
     def is_equivalent_to(self, other) -> bool:
         data_equal = self.data == other.data
         level_equal = self._level == other._level
-        if (not data_equal) or (not level_equal):
+        num_children_equal = len(self.children) == len(other.children)
+        if (not data_equal) or (not level_equal) or (not num_children_equal):
             return False
         for child, other_child in zip(self.children, other.children):
             if not child.is_equivalent_to(other_child):
