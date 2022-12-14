@@ -148,6 +148,11 @@ class TreeNode:
     def set_level(self, new_level: int):
         self._level = new_level
 
+    def update_level_to_parent(self):
+        def update_level(node):
+            node.set_level(node.parent._level + 1)
+        self.apply_to_self_and_children(update_level)
+
     def apply_to_self_and_children(self, callable: Callable[[TreeNode], None]):
         callable(self)
         for child in self.children:

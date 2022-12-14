@@ -349,6 +349,7 @@ class ViewModel:
             self.selected_node.add_sibling(self._cut_item)
         else:
             self.tree_root.append_child(self._cut_item)
+        self._cut_item.update_level_to_parent()
         self._cut_item = None
 
     def undo(self):

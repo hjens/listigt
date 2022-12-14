@@ -262,13 +262,25 @@ def test_delete_item(view_model):
 
 
 def test_paste_item(view_model):
-    assert len(view_model.tree_root.children) == 2
-    assert view_model.selected_node.data.text == "Item 1"
+    item1 = view_model.selected_node
+    assert item1.data.text == "Item 1"
+    view_model.select_next()
+    assert view_model.selected_node.data.text == "Item 1.1"
+    pasted_node = view_model.selected_node
     view_model.delete_item()
-    assert len(view_model.tree_root.children) == 1
-    assert view_model.selected_node.data.text == "Item 2"
+    assert view_model.selected_node.data.text == "Item 1.2"
 
+    view_model.selected_node = view_model.tree_root.first_child().first_child().first_child()
+    item1_2 = view_model.selected_node.parent
+    assert item1_2.data.text == "Item 1.2"
+    assert view_model.selected_node.data.text == "Item 1.2.1"
     view_model.paste_item()
+
+    assert pasted_node.data.text == "Item 1.1"
+    assert pasted_node.parent == item1_2
+    assert pasted_node.level == item1_2.level + 1
+    for child in pasted_node.children:
+        assert child.level == pasted_node.level + 1
 
 
 def test_undo(view_model):
