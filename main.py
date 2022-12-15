@@ -12,7 +12,7 @@ from view_model import view_model
 def main():
     args = _parse_args()
 
-    config_manager = config.ConfigManager(save_file=args.save_file)
+    config_manager = config.ConfigManager(save_file=args.save_file, config_file=args.config_file)
     tree = _read_saved_state(config_manager.save_file)
     vm = view_model.ViewModel(
         tree_root=tree, config_manager=config_manager
@@ -45,7 +45,14 @@ def _parse_args():
         type=Path,
         nargs="?",
         default=None,
-        help=f"Save file to use. Will override the default."
+        help=f"Save file to use. Will override the default, which is {config.ConfigManager().save_file}."
+    )
+    parser.add_argument(
+        "--config_file",
+        type=Path,
+        default=None,
+        required=False,
+        help=f"Config file to use. Will override the default, which is {config.ConfigManager().config_file}"
     )
     return parser.parse_args()
 

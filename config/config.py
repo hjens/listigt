@@ -4,14 +4,12 @@ from typing import Optional
 import toml
 
 
-# TODO: refactor to avoid code repetition
 class ConfigManager:
-    CONFIG_FILE = Path("config.toml")
-
-    def __init__(self, save_file: Optional[Path] = None):
+    def __init__(self, save_file: Optional[Path] = None, config_file: Optional[Path] = None):
         self._root_node_index = -1
         self._hide_complete_items = False
         self._save_file_override = save_file
+        self._config_file_override = save_file
         self._load_config()
 
     @property
@@ -41,9 +39,16 @@ class ConfigManager:
 
         return self.default_config_dir / "savefile"
 
+    @property
+    def config_file(self) -> Path:
+        if self._config_file_override:
+            return self._config_file_override
+
+        return self.default_config_dir / "config.toml"
+
     def _load_config(self):
         try:
-            toml_data = toml.load(self.CONFIG_FILE)
+            toml_data = toml.load(str(self.config_file))
             self._root_node_index = toml_data["State"].get("root_index", None)
             self._hide_complete_items = toml_data["State"].get(
                 "hide_complete_items", True
@@ -54,7 +59,9 @@ class ConfigManager:
             pass
 
     def save_config(self):
-        with open(self.CONFIG_FILE, "w") as f:
+        self.config_file.parent.mkdir(exist_ok=True)
+        
+        with open(self.config_file, "w") as f:
             toml.dump(
                 {
                     "State": {
