@@ -29,7 +29,7 @@ class ConfigManager:
         self._hide_complete_items = new_value
 
     @property
-    def default_config_dir(self) -> Path:
+    def config_dir(self) -> Path:
         return Path.home() / ".listigt"
 
     @property
@@ -37,14 +37,14 @@ class ConfigManager:
         if self._save_file_override:
             return self._save_file_override
 
-        return self.default_config_dir / "savefile"
+        return self.config_dir / "savefile"
 
     @property
     def config_file(self) -> Path:
         if self._config_file_override:
             return self._config_file_override
 
-        return self.default_config_dir / "config.toml"
+        return self.config_dir / "config.toml"
 
     def _load_config(self):
         try:
@@ -60,7 +60,7 @@ class ConfigManager:
 
     def save_config(self):
         self.config_file.parent.mkdir(exist_ok=True)
-        
+
         with open(self.config_file, "w") as f:
             toml.dump(
                 {
