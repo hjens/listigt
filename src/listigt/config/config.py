@@ -9,7 +9,7 @@ class ConfigManager:
         self._root_node_index = -1
         self._hide_complete_items = False
         self._save_file_override = save_file
-        self._config_file_override = save_file
+        self._config_file_override = config_file
         self._load_config()
 
     @property

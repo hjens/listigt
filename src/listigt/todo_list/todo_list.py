@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, List, Callable, Generator
+from typing import Optional
 
-from todo_list.tree import TreeNode
+from .tree import TreeNode
 
 
 COMPLETE_TEXT = "[COMPLETE]"

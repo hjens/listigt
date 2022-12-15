@@ -2,7 +2,7 @@ from copy import copy
 
 import pytest
 
-from todo_list.tree import TreeNode
+from src.listigt.todo_list.tree import TreeNode
 
 
 @pytest.fixture

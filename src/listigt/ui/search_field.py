@@ -3,13 +3,13 @@ from typing import Any
 import pyperclip
 import pytermgui as ptg
 
-from view_model.view_model import ViewModel
+from .. import view_model
 
 
 class SearchInput(ptg.InputField):
     def __init__(
         self,
-        view_model: ViewModel,
+        view_model: view_model.ViewModel,
         **attrs: Any,
     ):
         super().__init__(**attrs)

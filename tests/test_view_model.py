@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from config import config
-from todo_list.todo_list import TodoItem
-from todo_list.tree import TreeNode
-from view_model.view_model import ViewModel
+from src.listigt.config import config
+from src.listigt.todo_list import todo_list
+from src.listigt.todo_list.tree import TreeNode
+from src.listigt.view_model.view_model import ViewModel
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def tree_str():
 
 @pytest.fixture
 def tree_root(tree_str):
-    return TreeNode.from_string(tree_str, TodoItem.tree_node_from_str)
+    return TreeNode.from_string(tree_str, todo_list.TodoItem.tree_node_from_str)
 
 
 @pytest.fixture
@@ -35,7 +35,10 @@ def save_file():
 
 @pytest.fixture
 def view_model(tree_root, save_file):
-    vm = ViewModel(tree_root, save_file, config.ConfigManager())
+    config_manager = config.ConfigManager()
+    config_manager.hide_complete_items = False
+
+    vm = ViewModel(tree_root, config_manager)
     vm.set_window_height(10)
 
     def mock_save():

@@ -2,8 +2,8 @@ from copy import deepcopy
 
 import pytest
 
-from todo_list.todo_list import TodoItem
-from todo_list.tree import TreeNode
+from src.listigt.todo_list.todo_list import TodoItem
+from src.listigt.todo_list.tree import TreeNode
 
 
 @pytest.mark.parametrize(
