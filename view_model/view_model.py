@@ -27,10 +27,9 @@ class StateBeforeSearch:
 
 class ViewModel:
     def __init__(
-        self, tree_root: TreeNode, save_file: Path, config_manager: config.ConfigManager
+        self, tree_root: TreeNode,  config_manager: config.ConfigManager
     ):
         self._config_manager = config_manager
-        self._save_file = save_file
         self.tree_root = tree_root
         self.selected_node: Optional[TreeNode] = None
         self._is_inserting = False
@@ -51,7 +50,7 @@ class ViewModel:
         self._undo_stack: List[TreeNode] = []
 
     def save_to_file(self):
-        with open(self._save_file, "w") as f:
+        with open(self._config_manager.save_file, "w") as f:
             f.write("\n".join([str(item) for item in self.tree_root.root().children]))
 
     def set_window_height(self, height: int):

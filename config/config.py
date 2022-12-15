@@ -8,9 +8,10 @@ import toml
 class ConfigManager:
     CONFIG_FILE = Path("config.toml")
 
-    def __init__(self):
+    def __init__(self, save_file: Optional[Path] = None):
         self._root_node_index = -1
         self._hide_complete_items = False
+        self._save_file_override = save_file
         self._load_config()
 
     @property
@@ -28,6 +29,17 @@ class ConfigManager:
     @hide_complete_items.setter
     def hide_complete_items(self, new_value: bool):
         self._hide_complete_items = new_value
+
+    @property
+    def default_config_dir(self) -> Path:
+        return Path.home() / ".listigt"
+
+    @property
+    def save_file(self) -> Path:
+        if self._save_file_override:
+            return self._save_file_override
+
+        return self.default_config_dir / "savefile"
 
     def _load_config(self):
         try:
