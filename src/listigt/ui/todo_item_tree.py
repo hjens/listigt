@@ -3,10 +3,10 @@ from typing import Any
 import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
-from ..ui.new_item_input import NewItemInput
-from ..ui.search_field import SearchInput
-from ..view_model import view_model
-from ..view_model.view_model import ListItem
+from ui.new_item_input import NewItemInput
+from ui.search_field import SearchInput
+from view_model import view_model
+from view_model.view_model import ListItem
 
 
 class TodoItemTree(ptg.Container):

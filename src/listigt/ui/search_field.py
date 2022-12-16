@@ -3,7 +3,7 @@ from typing import Any
 import pyperclip
 import pytermgui as ptg
 
-from .. import view_model
+import view_model
 
 
 class SearchInput(ptg.InputField):

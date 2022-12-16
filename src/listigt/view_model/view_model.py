@@ -2,9 +2,9 @@ import copy
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
-from ..config import config
-from ..todo_list.todo_list import TodoItem
-from ..todo_list.tree import TreeNode, FilterFunction
+from config import config
+from todo_list.todo_list import TodoItem
+from todo_list.tree import TreeNode, FilterFunction
 
 
 @dataclass

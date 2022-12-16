@@ -2,11 +2,11 @@ import argparse
 import atexit
 from pathlib import Path
 
-from listigt.config import config
-from listigt.todo_list.todo_list import TodoItem
-from listigt.todo_list.tree import TreeNode
-from listigt.ui import ui
-from listigt.view_model import view_model
+from config import config
+from todo_list.todo_list import TodoItem
+from todo_list.tree import TreeNode
+from ui import ui
+from view_model import view_model
 
 
 def main():
