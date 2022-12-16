@@ -3,3 +3,4 @@
 **/*.swp
 dist/*
 .env/*
+src/listigt.egg-info/*
