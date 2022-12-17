@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from .tree import TreeNode
+from listigt.todo_list import tree
 
 
 COMPLETE_TEXT = "[COMPLETE]"
@@ -25,7 +25,7 @@ class TodoItem:
         return f"{complete_str}{collapsed_str}{self.text}{subtitle_str}"
 
     @classmethod
-    def tree_node_from_str(cls, s: str, last_node: TreeNode) -> Optional[TreeNode]:
+    def tree_node_from_str(cls, s: str, last_node: tree.TreeNode) -> Optional[tree.TreeNode]:
         if s.strip().startswith('"') and s.strip().endswith('"'):
             subtitle = s.strip()[1:-1]
             last_node.data.subtitle = subtitle
@@ -41,7 +41,7 @@ class TodoItem:
         collapsed = COLLAPSED_TEXT in text
         text = text.replace(COMPLETE_TEXT, "").strip()
         text = text.replace(COLLAPSED_TEXT, "").strip()
-        return TreeNode(
+        return tree.TreeNode(
             data=TodoItem(text=text, complete=complete, collapsed=collapsed),
             level=level,
         )

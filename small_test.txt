@@ -1,10 +1,65 @@
-- Item 1
-  - Item 1.1
-  "Subtitle"
-    - [COMPLETE] Item 1.1.1
-    - Item 1.1.2
-  - Item 1.2
-    - Item 1.2.1
-     - Item 1.2.1.1
-- Item 2
-- Item 3
+- Features
+  - [COMPLETE] [COLLAPSED] Visa/göm färdiga noder  
+    - [COMPLETE] Spara state
+  - [COMPLETE] Redigera items
+  - [COMPLETE] [COLLAPSED] Kollapsa noder  
+    - [COMPLETE] Lägg till collapse-property  
+    - [COMPLETE] Lägg till tester  
+    - [COMPLETE] Lägg till tangent för att toggla collapse  
+    - [COMPLETE] Visa bara collapsade    
+      - [COMPLETE] [COLLAPSED] Fixa bugg när man stegar genom trädet    
+      - [COMPLETE] [COLLAPSED] Fixa bugg när kollapsade subträd visas  
+    - [COMPLETE] Spara state
+  - [COMPLETE] Navigationskontroller (L, H, M)
+  - [COMPLETE] Klistra in utklippta items
+  - [COLLAPSED] Sök  
+    - [COMPLETE] Göm sökfält när man inte söker  
+    - [COMPLETE] Nollställ söktext när man slutar söka  
+    - [COMPLETE] Återställ kollapsade noder när man slutar söka  
+    - [COMPLETE] Nollställ sökresultat när man slutar söka  
+    - [COMPLETE] Refaktorera kod, rensa upp _update_widgets  
+    - [COMPLETE] Gör sökningen smartare  
+    - Fuzzy search  
+    - Highlighta bara den delen av ett item som matchar sök
+  - [COMPLETE] Hantera när det inte finns någon sparfil
+  - Länkar
+  - Hjälp-fönster med kommandon
+  - Använd samma logik för paste som för new item
+  - [COMPLETE] Ctrl-Enter för att lägga till ett item och öppna input prompt för ett nytt
+  - [COLLAPSED] Lägg till fler commandon för input-fält  
+    - Ctrl-W  
+    - Ctrl-A
+  - Paketera  
+    - Lägg till README  
+    - Lägg till LICENSE
+  - Redo
+  - Insert och paste ovanför selection
+  - [COLLAPSED] Senare  
+    - Lägg till description  
+    - [COMPLETE] Sparfil    
+      - Färger  
+    - Copy-paste items  
+    - Taggar    
+      - Man skulle kunna tagga saker med #red, #yellow och så får texten den färgen
+  - [COMPLETE] Ändra så att man lägger till child item om markerade noden har sub-lista
+  - [COMPLETE] Visa breadcrumbs i titel, så man ser hela sökvägen
+- Refactor
+  - Använd optionals
+  - Använd fixtures i tree-tester
+  - [COMPLETE] Flytta widgets till varsin fil
+  - [COMPLETE] Lägg till tester av view model
+- Buggar
+  - [COMPLETE] Ta bort all på root-nivå och försök lägga till ett item
+  - [COMPLETE] Sätt ett kollapsat item som root
+  - [COMPLETE] Försök klistra in ett item i en tom lista
+  - [COMPLETE] H-kommandot går till toppen av listan istället för toppen av skärmen
+  - [COMPLETE] Placering av insert prompt i en tom lista
+  - Fönstret blir för stort när insert prompt är synligt
+  - [COMPLETE] Klipp ut en nod med child och klistra in. Child får fel indent
+  - [COMPLETE] När man togglar complete ska inte child items kunna bli complete utan att parent blir det
+  - [COMPLETE] När man kör set_as_root och första item är complete så blir det fel
+  - [COMPLETE] Bugg i index_of_selected_node
+  - [COMPLETE] Korrekt indentering för input prompt
+  - [COMPLETE] Fixa toggling av complete för subnoder. Barnen ska inte togglas utan sättas till samma som förälder
+  - [COMPLETE] Insert prompt saknar cursor
+  - [COMPLETE] Stora å, ä och ö

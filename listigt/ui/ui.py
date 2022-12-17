@@ -1,9 +1,9 @@
 import pytermgui as ptg
 from pytermgui import VerticalAlignment
 
-from ui.search_field import SearchInput
-from ui import TodoItemTree
-from view_model import view_model
+from listigt.ui.search_field import SearchInput
+from listigt.ui.todo_item_tree import TodoItemTree
+from listigt.view_model import view_model
 
 def _define_layout() -> ptg.Layout:
     layout = ptg.Layout()
