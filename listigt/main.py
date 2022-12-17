@@ -7,6 +7,7 @@ from listigt.todo_list.todo_list import TodoItem
 from listigt.todo_list.tree import TreeNode
 from listigt.ui import ui
 from listigt.view_model import view_model
+from listigt.utils.optional import Optional
 
 
 def main():
@@ -44,13 +45,13 @@ def _parse_args():
         "save_file",
         type=Path,
         nargs="?",
-        default=None,
+        default=Optional.none(),
         help=f"Save file to use. Will override the default, which is {config.ConfigManager().save_file}."
     )
     parser.add_argument(
         "--config_file",
         type=Path,
-        default=None,
+        default=Optional.none(),
         required=False,
         help=f"Config file to use. Will override the default, which is {config.ConfigManager().config_file}"
     )

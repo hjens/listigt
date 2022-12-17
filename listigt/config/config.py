@@ -1,11 +1,17 @@
+from typing import Optional as BuiltinOptional
 from pathlib import Path
-from typing import Optional
 
 import toml
 
+from listigt.utils.optional import Optional
+
 
 class ConfigManager:
-    def __init__(self, save_file: Optional[Path] = None, config_file: Optional[Path] = None):
+    def __init__(
+        self,
+        save_file: Optional[Path] = Optional.none(),
+        config_file: Optional[Path] = Optional.none(),
+    ):
         self._root_node_index = -1
         self._hide_complete_items = False
         self._save_file_override = save_file
@@ -17,7 +23,7 @@ class ConfigManager:
         return None if self._root_node_index < 0 else self._root_node_index
 
     @root_node_index.setter
-    def root_node_index(self, new_value: Optional[int]):
+    def root_node_index(self, new_value: BuiltinOptional[int]):
         self._root_node_index = -1 if new_value is None else new_value
 
     @property
@@ -34,17 +40,11 @@ class ConfigManager:
 
     @property
     def save_file(self) -> Path:
-        if self._save_file_override:
-            return self._save_file_override
-
-        return self.config_dir / "savefile"
+        return self._save_file_override.value_or(self.config_dir / "savefile")
 
     @property
     def config_file(self) -> Path:
-        if self._config_file_override:
-            return self._config_file_override
-
-        return self.config_dir / "config.toml"
+        return self._save_file_override.value_or(self.config_dir / "config.toml")
 
     def _load_config(self):
         try:
