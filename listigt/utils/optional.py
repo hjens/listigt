@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 
 class Optional(Generic[T]):
-    def __init__(self, value: T):
+    def __init__(self, value: T | None):
         self._value = value
 
     @classmethod
@@ -32,3 +32,6 @@ class Optional(Generic[T]):
 
     def value_or(self, default: T) -> T:
         return self._value if self.has_value() else default
+
+    def value_or_none(self) -> T | None:
+        return self._value if self.has_value() else None

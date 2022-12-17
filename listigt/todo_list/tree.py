@@ -209,18 +209,18 @@ class TreeNode:
         for line in s.splitlines():
             try:
                 node = node_from_str(line, node)
-                if node is None:
+                if not node.has_value():
                     continue
-                if node.level > current_level:
-                    insert_point = insert_point.last_child()
-                elif node._level < current_level:
-                    for _ in range(current_level - node.level):
-                        insert_point = insert_point.parent
-                current_level = node.level
-                insert_point.append_child(node)
+                if node.value().level > current_level:
+                    insert_point = insert_point.value().last_child()
+                elif node.value().level < current_level:
+                    for _ in range(current_level - node.value().level):
+                        insert_point = insert_point.value().parent
+                current_level = node.value().level
+                insert_point.value().append_child(node.value())
             except ValueError as e:
                 continue
 
-        root = insert_point.root()
+        root = insert_point.value().root()
         root.change_level(-1)
         return root

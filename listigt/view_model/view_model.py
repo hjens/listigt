@@ -1,8 +1,9 @@
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from listigt.config import config
+from listigt.utils.optional import Optional
 from listigt.todo_list.todo_list import TodoItem
 from listigt.todo_list.tree import TreeNode, FilterFunction
 
@@ -30,14 +31,14 @@ class ViewModel:
     ):
         self._config_manager = config_manager
         self.tree_root = tree_root
-        self.selected_node: Optional[TreeNode] = None
+        self.selected_node: Optional[TreeNode] = Optional.none()
         self._is_inserting = False
-        self._cut_item: Optional[TreeNode] = None
-        self._item_being_edited: Optional[TreeNode] = None
-        self._search_string: Optional[str] = None
+        self._cut_item: Optional[TreeNode] = Optional.none()
+        self._item_being_edited: Optional[TreeNode] = Optional.none()
+        self._search_string: Optional[str] = Optional.none()
         self._search_results: List[TreeNode] = []
         self._state_before_search = StateBeforeSearch(
-            selected_node=None, collapsed_nodes=[]
+            selected_node=Optional.none(), collapsed_nodes=[]
         )
         self._restore_saved_root_node()
 
@@ -60,7 +61,7 @@ class ViewModel:
     def _restore_saved_root_node(self):
         root_index = self._config_manager.root_node_index
         root_node = self.tree_root.root().node_at_index(root_index)
-        if root_node:
+        if root_node.has_value():
             self.set_as_root(root_node)
 
     @property
@@ -72,7 +73,7 @@ class ViewModel:
             return ListItem(
                 text=node.data.text,
                 indentation_level=node.level - self.tree_root.level - 1,
-                is_selected=self.selected_node and (node == self.selected_node),
+                is_selected=self.selected_node.has_value() and (node == self.selected_node.value()),
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
@@ -91,7 +92,7 @@ class ViewModel:
         node = self.tree_root
         list_title = node.data.text
         while True:
-            node = node.parent
+            node = node.parent.value()
             if node != top_level:
                 breadcrumbs = node.data.text + " > " + breadcrumbs
             else:
@@ -106,56 +107,57 @@ class ViewModel:
             self._first_item_on_screen + self._num_items_on_screen
         )
         if (
-            self.selected_node
+            self.selected_node.has_value()
             and self._config_manager.hide_complete_items
-            and self.selected_node.data.complete
+            and self.selected_node.value().data.complete
         ):
             # Need to temporarily set the selected node to incomplete, or select_next will not work
             old_selected_node = self.selected_node
-            self.selected_node.data.complete = False
+            self.selected_node.value().data.complete = False
             self.select_next()
-            old_selected_node.data.complete = True
+            old_selected_node.value().data.complete = True
 
     def select_next(self):
-        if not self.selected_node:
+        if not self.selected_node.has_value():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
-            self.selected_node = self.tree_root.node_after(
-                self.selected_node, self._make_filter_func()
-            )
+            self.selected_node = Optional.some(self.tree_root.node_after(
+                self.selected_node.value(), self._make_filter_func()
+            ))
 
     def select_previous(self):
-        if not self.selected_node:
+        if not self.selected_node.has_value():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
-            self.selected_node = self.tree_root.node_before(
-                self.selected_node, self._make_filter_func()
-            )
+            self.selected_node = Optional.some(self.tree_root.node_before(
+                self.selected_node.value(), self._make_filter_func()
+            ))
 
     def select_bottom(self):
         nodes_list = list(self._all_visible_nodes())
         if len(nodes_list) >= self._last_item_on_screen - 1:
-            self.selected_node = nodes_list[self._last_item_on_screen - 1]
+            self.selected_node = Optional.some(nodes_list[self._last_item_on_screen - 1])
 
     def select_top(self):
         nodes_list = list(self._all_visible_nodes())
         if len(nodes_list) >= self._first_item_on_screen:
-            self.selected_node = nodes_list[self._first_item_on_screen]
+            self.selected_node = Optional.some(nodes_list[self._first_item_on_screen])
 
     def select_middle(self):
         nodes_list = list(self._all_visible_nodes())
         middle_index = (self._first_item_on_screen + self._last_item_on_screen) // 2
         if len(nodes_list) >= middle_index:
-            self.selected_node = nodes_list[middle_index]
+            self.selected_node = Optional.some(nodes_list[middle_index])
 
     def select_first(self):
         self.selected_node = self.tree_root.first_child(self._make_filter_func())
 
     def set_as_root(self, node: Optional[TreeNode]):
-        if node is None:
+        if not node.has_value():
             return
 
-        self.tree_root = node
+        # TODO: handle missing tree_root value properly
+        self.tree_root = node.value()
         self.tree_root.data.collapsed = False
         if self.tree_root.has_children():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
@@ -175,7 +177,7 @@ class ViewModel:
             )
             try:
                 self._config_manager.root_node_index = (
-                    self.tree_root.root().index_for_node(self.tree_root)
+                    self.tree_root.value().root().index_for_node(self.tree_root.value())
                 )
             except ValueError:
                 pass
@@ -200,7 +202,7 @@ class ViewModel:
     def insert_item(self, item_text: str):
         self._push_undo_state()
         new_node = TreeNode(data=TodoItem(item_text))
-        if selected_node := self.selected_node:
+        if selected_node := self.selected_node.value_or_none():
             should_add_node_as_child = (
                 selected_node.has_children() and not selected_node.data.collapsed
             )
@@ -215,7 +217,7 @@ class ViewModel:
         self._last_item_on_screen += 1
 
     def insertion_indent(self) -> int:
-        if selected_node := self.selected_node:
+        if selected_node := self.selected_node.value_or_none():
             indent = selected_node.level - self.tree_root.level
             if selected_node.has_children() and not selected_node.data.collapsed:
                 return indent
@@ -223,7 +225,7 @@ class ViewModel:
         return 0
 
     def start_edit(self):
-        if self.selected_node:
+        if self.selected_node.has_value():
             self._item_being_edited = copy.deepcopy(self.selected_node)
 
     def cancel_edit(self):
@@ -231,7 +233,8 @@ class ViewModel:
 
     def finish_edit(self, new_text: str):
         assert self.is_editing
-        self.selected_node.data.text = new_text
+        assert self.selected_node.has_value()
+        self.selected_node.value().data.text = new_text
         self._item_being_edited = None
 
     @property
@@ -279,10 +282,10 @@ class ViewModel:
     def _is_search_result(self, node: TreeNode) -> bool:
         if not self.is_searching:
             return False
-        return self._search_string.lower() in node.data.text.lower()
+        return self._search_string.value().lower() in node.data.text.lower()
 
     def _update_search_results(self):
-        if len(self._search_string) < 3:
+        if len(self._search_string.value_or("")) < 3:
             self._search_results = []
             return
 
@@ -302,7 +305,7 @@ class ViewModel:
         for node in self._state_before_search.collapsed_nodes:
             node.data.collapsed = True
         self._state_before_search = StateBeforeSearch(
-            selected_node=None, collapsed_nodes=[]
+            selected_node=Optional.none(), collapsed_nodes=[]
         )
 
     def toggle_complete(self):
@@ -314,61 +317,61 @@ class ViewModel:
         if self._config_manager.hide_complete_items:
             self.select_previous()
 
-        if not node_to_complete.data.complete:
+        if not node_to_complete.value().data.complete:
 
             def set_complete(node):
                 node.data.complete = True
 
-            node_to_complete.apply_to_self_and_children(set_complete)
+            node_to_complete.value().apply_to_self_and_children(set_complete)
         else:
-            node_to_complete.data.complete = False
+            node_to_complete.value().data.complete = False
 
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self._all_visible_nodes()):
-            if self.selected_node and (item == self.selected_node):
+            if self.selected_node.has_value() and (item == self.selected_node.value()):
                 return index
         return 0
 
     def delete_item(self):
         self._push_undo_state()
-        if node_to_remove := self.selected_node:
+        if node_to_remove := self.selected_node.value_or_none():
             self._cut_item = node_to_remove
             self.select_previous()
             self.tree_root.remove_node(node_to_remove)
             self.select_next()
             if not self.tree_root.has_children():
-                self.selected_node = None
+                self.selected_node = Optional.none()
 
     def paste_item(self):
-        if self._cut_item is None:
+        if not self._cut_item.has_value():
             return
 
-        if self.selected_node:
-            self.selected_node.add_sibling(self._cut_item)
+        if self.selected_node.has_value():
+            self.selected_node.value().add_sibling(self._cut_item.value())
         else:
-            self.tree_root.append_child(self._cut_item)
-        self._cut_item.update_level_to_parent()
-        self._cut_item = None
+            self.tree_root.append_child(self._cut_item.value())
+        self._cut_item.value().update_level_to_parent()
+        self._cut_item = Optional.none()
 
     def undo(self):
         if not self._undo_stack:
             return
 
         tree_root_index = self.tree_root.root().index_for_node(self.tree_root)
-        selected_node_index = (
+        selected_node_index = ( # TODO: clean up
             None
-            if self.selected_node is None
-            else self.tree_root.root().index_for_node(self.selected_node)
+            if not self.selected_node.has_value()
+            else self.tree_root.root().index_for_node(self.selected_node.value())
         )
 
         undo_state = self._undo_stack.pop()
         self.tree_root = undo_state
 
-        if tree_root_index:
-            self.set_as_root(self.tree_root.root().node_at_index(tree_root_index))
-        if selected_node_index:
+        if tree_root_index.has_value():
+            self.set_as_root(self.tree_root.root().node_at_index(tree_root_index.value()))
+        if selected_node_index.has_value():
             self.selected_node = self.tree_root.root().node_at_index(
-                selected_node_index
+                selected_node_index.value()
             )
 
     def _update_scrolling(self, num_lines: int):
@@ -389,22 +392,22 @@ class ViewModel:
             )
 
     def _all_visible_nodes(self):
-        return self.tree_root.gen_all_nodes_with_condition(self._make_filter_func())
+        return self.tree_root.gen_all_nodes_with_condition(self._make_filter_func().value())
 
-    def _make_filter_func(self) -> FilterFunction:
+    def _make_filter_func(self) -> Optional[FilterFunction]:
         def filter_func(node: TreeNode) -> bool:
             # Always hide completed items if hide_complete is set
             if self._config_manager.hide_complete_items and node.data.complete:
                 return False
             # Hide children of collapsed nodes
-            if node.parent and node.parent.data.collapsed:
+            if node.parent.has_value() and node.parent.value().data.collapsed:
                 return False
             # Make sure we hide all children of hidden nodes
-            if node.parent and not filter_func(node.parent):
+            if node.parent.has_value() and not filter_func(node.parent.value()):
                 return False
             return True
 
-        return filter_func
+        return Optional.some(filter_func)
 
     def _push_undo_state(self):
         saved_tree = copy.deepcopy(self.tree_root.root())

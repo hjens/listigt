@@ -97,9 +97,9 @@ def test_list_title(view_model):
 
 
 def test_select_next(view_model):
-    assert view_model.selected_node.data.text == "Item 1"
+    assert view_model.selected_node.value().data.text == "Item 1"
     view_model.select_next()
-    assert view_model.selected_node.data.text == "Item 1.1"
+    assert view_model.selected_node.value().data.text == "Item 1.1"
 
 
 def test_select_previous(view_model):
