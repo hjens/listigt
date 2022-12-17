@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, List, Generator, Callable
+from typing import TypeVar, List, Generator, Callable
 import uuid
+
+from listigt.utils.optional import Optional
 
 T = TypeVar("T")
 FilterFunction = Callable[["TreeNode"], bool]
@@ -11,29 +13,31 @@ class TreeNode:
     def __init__(self, data: T, level: int = 0):
         self.data = data
         self._children: List[TreeNode] = []
-        self._parent: Optional[TreeNode] = None
+        self._parent: Optional[TreeNode] = Optional.none()
         self._level: int = level
         self._id = uuid.uuid1()
 
     def prepend_child(self, child: TreeNode):
         self._children.insert(0, child)
         child._level = self._level + 1
-        child._parent = self
+        child._parent = Optional.some(self)
 
-    def append_child(self, child: TreeNode, after_child: Optional[TreeNode] = None):
-        if after_child:
-            index = self.children.index(after_child)
+    def append_child(
+        self, child: TreeNode, after_child: Optional[TreeNode] = Optional.none()
+    ):
+        if after_child.has_value():
+            index = self.children.index(after_child.value())
             self.children.insert(index + 1, child)
         else:
             self._children.append(child)
         child._level = self._level + 1
-        child._parent = self
+        child._parent = Optional.some(self)
 
     def has_children(self) -> bool:
         return len(self.children) > 0
 
     def add_sibling(self, new_node: TreeNode):
-        self.parent.append_child(new_node, after_child=self)
+        self.parent.value().append_child(new_node, after_child=Optional.some(self))
 
     def remove_node(self, node: TreeNode):
         if node in self._children:
@@ -43,35 +47,39 @@ class TreeNode:
             child.remove_node(node)
 
     def first_child(
-        self, filter_func: Optional[FilterFunction] = None
+        self, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> Optional[TreeNode]:
         try:
-            if filter_func:
-                return [child for child in self.children if filter_func(child)][0]
+            if filter_func.has_value():
+                return Optional.some(
+                    [child for child in self.children if filter_func.value()(child)][0]
+                )
             else:
-                return self.children[0]
+                return Optional.some(self.children[0])
         except IndexError:
-            return None
+            return Optional.none()
 
     def last_child(
-        self, filter_func: Optional[FilterFunction] = None
+        self, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> Optional[TreeNode]:
         try:
-            if filter_func:
-                return [child for child in self.children if filter_func(child)][-1]
+            if filter_func.has_value():
+                return Optional.some(
+                    [child for child in self.children if filter_func.value()(child)][-1]
+                )
             else:
-                return self.children[-1]
+                return Optional.some(self.children[-1])
         except IndexError:
-            return None
+            return Optional.none()
 
     def node_after(
-        self, node: TreeNode, filter_func: Optional[FilterFunction] = None
+        self, node: TreeNode, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> TreeNode:
         if not self.has_children():
             return self
 
-        if filter_func:
-            generator = self.gen_all_nodes_with_condition(filter_func)
+        if filter_func.has_value():
+            generator = self.gen_all_nodes_with_condition(filter_func.value())
         else:
             generator = self.gen_all_nodes()
         for item in generator:
@@ -79,19 +87,19 @@ class TreeNode:
                 try:
                     return next(generator)
                 except StopIteration:
-                    return self.first_child(filter_func)
+                    return self.first_child(filter_func).value_or(self)
         # Did not find the given node in the sub-tree
         return self
 
     def node_before(
-        self, node: TreeNode, filter_func: Optional[FilterFunction] = None
+        self, node: TreeNode, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> TreeNode:
         if not self.has_children():
             return self
 
         # TODO: this could be optimized
-        if filter_func:
-            all_items = list(self.gen_all_nodes_with_condition(filter_func))
+        if filter_func.has_value():
+            all_items = list(self.gen_all_nodes_with_condition(filter_func.value()))
         else:
             all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
@@ -128,17 +136,17 @@ class TreeNode:
     def node_at_index(self, index: int) -> Optional[TreeNode]:
         for i, node_i in enumerate(self.gen_all_nodes()):
             if i == index:
-                return node_i
-        return None
+                return Optional.some(node_i)
+        return Optional.none()
 
     def index_for_node(self, node: TreeNode) -> Optional[int]:
         for i, node_i in enumerate(self.gen_all_nodes()):
             if node_i == node:
-                return i
-        return None
+                return Optional.some(i)
+        return Optional.none()
 
     @property
-    def parent(self) -> TreeNode:
+    def parent(self) -> Optional[TreeNode]:
         return self._parent
 
     @property
@@ -151,6 +159,7 @@ class TreeNode:
     def update_level_to_parent(self):
         def update_level(node):
             node.set_level(node.parent._level + 1)
+
         self.apply_to_self_and_children(update_level)
 
     def apply_to_self_and_children(self, callable: Callable[[TreeNode], None]):
@@ -165,9 +174,9 @@ class TreeNode:
     def root(self) -> TreeNode:
         out = self
         while True:
-            if out.parent is None:
+            if not out.parent.has_value():
                 return out
-            out = out.parent
+            out = out.parent.value()
 
     def __str__(self) -> str:
         indent = " " * self._level * 2
@@ -192,10 +201,10 @@ class TreeNode:
 
     @classmethod
     def from_string(
-        cls, s: str, node_from_str: Callable[[str, TreeNode], Optional[TreeNode]]
+        cls, s: str, node_from_str: Callable[[str, Optional[TreeNode]], Optional[TreeNode]]
     ) -> TreeNode:
         current_level = 0
-        insert_point = node_from_str("- root", None)  # TODO
+        insert_point = node_from_str("- root", Optional.none())  # TODO
         node = insert_point
         for line in s.splitlines():
             try:

@@ -3,6 +3,7 @@ from copy import copy
 import pytest
 
 from listigt.todo_list.tree import TreeNode
+from listigt.utils.optional import Optional, OptionalException
 
 
 @pytest.fixture
@@ -26,7 +27,7 @@ def tree_and_nodes():
     leaf4 = TreeNode("leaf4")
     root.append_child(branch1)
     root.append_child(branch2)
-    root.append_child(leaf2, after_child=branch1)
+    root.append_child(leaf2, after_child=Optional.some(branch1))
     branch1.append_child(sub_branch)
     sub_branch.append_child(leaf3)
     branch1.append_child(leaf1)
@@ -60,9 +61,9 @@ def test_add_tree_nodes(tree_and_nodes):
     assert branch1.level == 1
     assert branch2.level == 1
     assert leaf1.level == 2
-    assert leaf1.parent == branch1
-    assert branch1.parent == root
-    assert branch2.parent == root
+    assert leaf1.parent.value() == branch1
+    assert branch1.parent.value() == root
+    assert branch2.parent.value() == root
     assert branch1.root() == root
     assert branch2.root() == root
     assert leaf1.root() == root
@@ -84,7 +85,7 @@ def test_prepend_child(tree_and_nodes):
     root, nodes = tree_and_nodes
     nodes["branch1"].prepend_child(TreeNode("new_node"))
 
-    assert nodes["branch1"].first_child().data == "new_node"
+    assert nodes["branch1"].first_child().value().data == "new_node"
 
 
 def test_node_after(tree_and_nodes):
@@ -97,7 +98,7 @@ def test_node_after(tree_and_nodes):
 
 def test_node_after_with_condition(tree_and_nodes):
     root, nodes = tree_and_nodes
-    filter = lambda node: node.data != "sub_branch"
+    filter = Optional.some(lambda node: node.data != "sub_branch")
 
     assert root.node_after(nodes["branch1"], filter) == nodes["leaf1"]
     assert root.node_after(nodes["leaf4"], filter) == nodes["branch1"]
@@ -113,7 +114,7 @@ def test_node_before(tree_and_nodes):
 
 def test_node_before_with_condition(tree_and_nodes):
     root, nodes = tree_and_nodes
-    filter = lambda node: node.data != "sub_branch"
+    filter = Optional.some(lambda node: node.data != "sub_branch")
 
     assert root.node_before(nodes["leaf1"], filter) == nodes["branch1"]
     assert root.node_before(nodes["branch1"], filter) == nodes["leaf4"]
@@ -175,7 +176,10 @@ def test_gen_all_nodes_with_complex_condition(tree_and_nodes):
     root, nodes = tree_and_nodes
 
     def filter(node):
-        return node.parent.data != "sub_branch"
+        try:
+            return node.parent.value().data != "sub_branch"
+        except OptionalException:
+            return False
 
     generator = root.gen_all_nodes_with_condition(filter)
     expected_output = ["branch1", "sub_branch", "leaf1", "leaf2", "branch2", "leaf4"]
@@ -187,13 +191,13 @@ def test_gen_all_nodes_with_complex_condition(tree_and_nodes):
 
 def test_node_at_index(tree_and_nodes):
     root, nodes = tree_and_nodes
-    assert root.node_at_index(3) == nodes["leaf1"]
-    assert root.node_at_index(100) is None
+    assert root.node_at_index(3).value() == nodes["leaf1"]
+    assert not root.node_at_index(100).has_value()
 
 
 def test_index_for_node(tree_and_nodes):
     root, nodes = tree_and_nodes
-    assert root.index_for_node(nodes["leaf1"]) == 3
+    assert root.index_for_node(nodes["leaf1"]).value() == 3
 
 
 def test_remove_child():

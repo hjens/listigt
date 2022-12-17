@@ -26,7 +26,8 @@ class TodoItem:
 
     @classmethod
     def tree_node_from_str(cls, s: str, last_node: tree.TreeNode) -> Optional[tree.TreeNode]:
-        if s.strip().startswith('"') and s.strip().endswith('"'):
+        is_subtitle = s.strip().startswith('"') and s.strip().endswith('"')
+        if is_subtitle:
             subtitle = s.strip()[1:-1]
             last_node.data.subtitle = subtitle
             return None

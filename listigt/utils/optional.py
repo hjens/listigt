@@ -22,10 +22,13 @@ class Optional(Generic[T]):
     def none(cls) -> Optional:
         return Optional(None)
 
+    def has_value(self) -> bool:
+        return self._value is not None
+
     def value(self) -> T:
-        if self._value:
+        if self.has_value():
             return self._value
         raise OptionalException()
 
     def value_or(self, default: T) -> T:
-        return default if self._value is None else self._value
+        return self._value if self.has_value() else default
