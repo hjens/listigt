@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from src.listigt.config import config
-from src.listigt.todo_list import todo_list
-from src.listigt.todo_list.tree import TreeNode
-from src.listigt.view_model.view_model import ViewModel
+from listigt.config import config
+from listigt.todo_list import todo_list
+from listigt.todo_list.tree import TreeNode
+from listigt.view_model.view_model import ViewModel
 
 
 @pytest.fixture
