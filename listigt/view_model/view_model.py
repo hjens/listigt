@@ -162,15 +162,15 @@ class ViewModel:
         if self.tree_root.has_children():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
-            self.selected_node = None
+            self.selected_node = Optional.none()
         self._config_manager.root_node_index = self.tree_root.root().index_for_node(
             self.tree_root
         )
 
     def move_root_upwards(self):
         if self.tree_root.parent:
-            self.selected_node = self.tree_root
-            self.tree_root = self.tree_root.parent
+            self.selected_node = Optional.some(self.tree_root)
+            self.tree_root = self.tree_root.parent.value()
             self._first_item_on_screen = self.index_of_selected_node()
             self._last_item_on_screen = (
                 self._first_item_on_screen + self._num_items_on_screen
@@ -213,7 +213,7 @@ class ViewModel:
         else:
             self.tree_root.append_child(new_node)
         self._is_inserting = False
-        self.selected_node = new_node
+        self.selected_node = Optional.some(new_node)
         self._last_item_on_screen += 1
 
     def insertion_indent(self) -> int:
@@ -229,21 +229,21 @@ class ViewModel:
             self._item_being_edited = copy.deepcopy(self.selected_node)
 
     def cancel_edit(self):
-        self._item_being_edited = None
+        self._item_being_edited = Optional.none()
 
     def finish_edit(self, new_text: str):
         assert self.is_editing
         assert self.selected_node.has_value()
         self.selected_node.value().data.text = new_text
-        self._item_being_edited = None
+        self._item_being_edited = Optional.none()
 
     @property
     def is_editing(self):
-        return self._item_being_edited is not None
+        return self._item_being_edited.has_value()
 
     @property
     def is_searching(self):
-        return self._search_string is not None
+        return self._search_string.has_value()
 
     def update_search(self, search_string: str):
         if search_string == "" and self._state_before_search.selected_node is None:
@@ -252,7 +252,7 @@ class ViewModel:
         self._search_string = search_string
         self._update_search_results()
         if self._search_results:
-            self.selected_node = self._search_results[0]
+            self.selected_node = Optional.some(self._search_results[0])
 
     def cancel_search(self):
         self._search_string = None
@@ -265,18 +265,18 @@ class ViewModel:
 
     def select_next_search_result(self):
         for i, search_result in enumerate(self._search_results):
-            if search_result == self.selected_node:
-                self.selected_node = self._search_results[
+            if search_result == self.selected_node.value():
+                self.selected_node = Optional.some(self._search_results[
                     (i + 1) % len(self._search_results)
-                ]
+                ])
                 break
 
     def select_previous_search_result(self):
         for i, search_result in enumerate(self._search_results):
-            if search_result == self.selected_node:
-                self.selected_node = self._search_results[
+            if search_result == self.selected_node.value():
+                self.selected_node = Optional.some(self._search_results[
                     (i - 1) % len(self._search_results)
-                ]
+                ])
                 break
 
     def _is_search_result(self, node: TreeNode) -> bool:
