@@ -1,4 +1,3 @@
-from typing import Optional as BuiltinOptional
 from pathlib import Path
 
 import toml
@@ -19,12 +18,12 @@ class ConfigManager:
         self._load_config()
 
     @property
-    def root_node_index(self) -> int:
-        return None if self._root_node_index < 0 else self._root_node_index
+    def root_node_index(self) -> Optional[int]:
+        return Optional.some(self._root_node_index) if self._root_node_index >= 0 else Optional.none()
 
     @root_node_index.setter
-    def root_node_index(self, new_value: BuiltinOptional[int]):
-        self._root_node_index = -1 if new_value is None else new_value
+    def root_node_index(self, new_value: Optional[int]):
+        self._root_node_index = new_value.value_or(-1)
 
     @property
     def hide_complete_items(self) -> bool:
@@ -49,7 +48,7 @@ class ConfigManager:
     def _load_config(self):
         try:
             toml_data = toml.load(str(self.config_file))
-            self._root_node_index = toml_data["State"].get("root_index", None)
+            self._root_node_index = toml_data["State"].get("root_index", -1)
             self._hide_complete_items = toml_data["State"].get(
                 "hide_complete_items", True
             )

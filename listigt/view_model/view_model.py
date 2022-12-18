@@ -168,7 +168,7 @@ class ViewModel:
         )
 
     def move_root_upwards(self):
-        if self.tree_root.parent:
+        if self.tree_root.parent.has_value():
             self.selected_node = Optional.some(self.tree_root)
             self.tree_root = self.tree_root.parent.value()
             self._first_item_on_screen = self.index_of_selected_node()
@@ -177,14 +177,14 @@ class ViewModel:
             )
             try:
                 self._config_manager.root_node_index = (
-                    self.tree_root.value().root().index_for_node(self.tree_root.value())
+                    self.tree_root.root().index_for_node(self.tree_root)
                 )
             except ValueError:
                 pass
 
     def toggle_collapse_node(self):
-        if self.selected_node:
-            self.selected_node.data.collapsed = not self.selected_node.data.collapsed
+        if self.selected_node.has_value():
+            self.selected_node.value().data.collapsed = not self.selected_node.value().data.collapsed
         self._last_item_on_screen = (
             self._first_item_on_screen + self._num_items_on_screen
         )
@@ -249,18 +249,18 @@ class ViewModel:
         if search_string == "" and self._state_before_search.selected_node is None:
             self._state_before_search.selected_node = self.selected_node
 
-        self._search_string = search_string
+        self._search_string = Optional.some(search_string)
         self._update_search_results()
         if self._search_results:
             self.selected_node = Optional.some(self._search_results[0])
 
     def cancel_search(self):
-        self._search_string = None
+        self._search_string = Optional.none()
         self._search_results = []
         self._restore_search_state()
 
     def finish_search(self):
-        self._search_string = None
+        self._search_string = Optional.none()
         self._search_results = []
 
     def select_next_search_result(self):
@@ -290,10 +290,10 @@ class ViewModel:
             return
 
         def uncollapse_parents(node):
-            if node.parent.data.collapsed:
-                node.parent.data.collapsed = False
-                self._state_before_search.collapsed_nodes.append(node.parent)
-                uncollapse_parents(node.parent)
+            if node.parent.value().data.collapsed:
+                node.parent.value().data.collapsed = False
+                self._state_before_search.collapsed_nodes.append(node.parent.value())
+                uncollapse_parents(node.parent.value())
 
         search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
         self._search_results = list(search_results)
@@ -335,7 +335,7 @@ class ViewModel:
     def delete_item(self):
         self._push_undo_state()
         if node_to_remove := self.selected_node.value_or_none():
-            self._cut_item = node_to_remove
+            self._cut_item = Optional.some(node_to_remove)
             self.select_previous()
             self.tree_root.remove_node(node_to_remove)
             self.select_next()

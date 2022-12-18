@@ -158,7 +158,7 @@ class TreeNode:
 
     def update_level_to_parent(self):
         def update_level(node):
-            node.set_level(node.parent._level + 1)
+            node.set_level(node.parent.value()._level + 1)
 
         self.apply_to_self_and_children(update_level)
 
