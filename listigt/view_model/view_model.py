@@ -309,7 +309,7 @@ class ViewModel:
         )
 
     def toggle_complete(self):
-        if self.selected_node is None:
+        if not self.selected_node.has_value():
             return
 
         # Need to move selection before completing, or select_previous will not work
