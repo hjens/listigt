@@ -126,12 +126,11 @@ class TodoItemTree(ptg.Container):
                 indent = self._view_model.insertion_indent()
                 self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
 
-                if self._view_model.selected_node is None:
-                    self._widgets.insert(1, self.input_field)
+                if self._view_model.selected_node.has_value():
+                    list_items.insert = self._widgets.insert(self._view_model.index_of_selected_node() + 2,
+                                                             self.input_field)
                 else:
-                    self._widgets.insert(
-                        self._view_model.index_of_selected_node() + 2, self.input_field
-                    )
+                    self._widgets.insert(1, self.input_field)
                 self.set_widgets(self._widgets)
                 self.input_field.select(0)
 
