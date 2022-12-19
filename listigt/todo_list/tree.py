@@ -204,7 +204,7 @@ class TreeNode:
         cls, s: str, node_from_str: Callable[[str, Optional[TreeNode]], Optional[TreeNode]]
     ) -> TreeNode:
         current_level = 0
-        insert_point = node_from_str("- root", Optional.none())  # TODO
+        insert_point = node_from_str("- root", Optional.none())
         node = insert_point
         for line in s.splitlines():
             try:

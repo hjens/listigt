@@ -61,9 +61,9 @@ def test_build_tree_with_subtitle():
     assert len(root.children) == 2
     assert root.children[0].children[0].data.text == "Item 1.1"
     assert root.children[0].children[0].data.subtitle == "Subtitle"
-    #assert root.first_child().first_child().first_child().data.text == "Item 1.1.1" # TODO: implement chaining
-    #assert root.first_child().first_child().first_child().data.complete
-    #assert not root.first_child().first_child().first_child().data.collapsed
+    assert root.first_child().first_child().first_child().value().data.text == "Item 1.1.1"
+    assert root.first_child().first_child().first_child().value().data.complete
+    assert not root.first_child().first_child().first_child().value().data.collapsed
     node = root.first_child().value().children[1].children[0].children[0]
     assert node.data.text == "Item 1.2.1.1"
     assert node.data.complete
