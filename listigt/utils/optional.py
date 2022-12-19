@@ -35,3 +35,32 @@ class Optional(Generic[T]):
 
     def value_or_none(self) -> T | None:
         return self._value if self.has_value() else None
+
+    def __getattribute__(self, item):
+        class CallableWrapper:
+            def __init__(self, callable):
+                self._callable = callable
+
+            def __call__(self, *args, **kwargs):
+                value = self._callable(*args, **kwargs)
+                if value is None:
+                    return Optional.none()
+                elif isinstance(value, Optional):
+                    return value
+                return Optional.some(value)
+
+        try:
+            # Is it an attribute defined on the Optional class? E.g. value()
+            return super().__getattribute__(item)
+        except AttributeError:
+            # If self has no value, make a function that always returns none()
+            if not self.has_value():
+                return CallableWrapper(lambda _: Optional.none())
+            # Get the attribute from the value
+            attribute = self.value().__getattribute__(item)
+            # If the attribute is a callable, wrap it before returning,
+            # so it will return an Optional
+            if hasattr(attribute, "__call__"):
+                return CallableWrapper(attribute)
+            # Attribute is a member, put it inside an optional
+            return Optional.some(attribute)
