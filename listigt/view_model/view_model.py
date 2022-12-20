@@ -118,7 +118,7 @@ class ViewModel:
             old_selected_node.value().data.complete = True
 
     def select_next(self):
-        if not self.selected_node.has_value():
+        if self.selected_node.is_none():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
             self.selected_node = Optional.some(self.tree_root.node_after(
@@ -126,7 +126,7 @@ class ViewModel:
             ))
 
     def select_previous(self):
-        if not self.selected_node.has_value():
+        if self.selected_node.is_none():
             self.selected_node = self.tree_root.first_child(self._make_filter_func())
         else:
             self.selected_node = Optional.some(self.tree_root.node_before(
@@ -153,7 +153,7 @@ class ViewModel:
         self.selected_node = self.tree_root.first_child(self._make_filter_func())
 
     def set_as_root(self, node: Optional[TreeNode]):
-        if not node.has_value():
+        if node.is_none():
             return
 
         # TODO: handle missing tree_root value properly
@@ -309,7 +309,7 @@ class ViewModel:
         )
 
     def toggle_complete(self):
-        if not self.selected_node.has_value():
+        if self.selected_node.is_none():
             return
 
         # Need to move selection before completing, or select_previous will not work
@@ -343,7 +343,7 @@ class ViewModel:
                 self.selected_node = Optional.none()
 
     def paste_item(self):
-        if not self._cut_item.has_value():
+        if self._cut_item.is_none():
             return
 
         if self.selected_node.has_value():
@@ -360,7 +360,7 @@ class ViewModel:
         tree_root_index = self.tree_root.root().index_for_node(self.tree_root)
         selected_node_index = ( # TODO: clean up
             None
-            if not self.selected_node.has_value()
+            if self.selected_node.is_none()
             else self.tree_root.root().index_for_node(self.selected_node.value())
         )
 

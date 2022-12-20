@@ -174,7 +174,7 @@ class TreeNode:
     def root(self) -> TreeNode:
         out = self
         while True:
-            if not out.parent.has_value():
+            if out.parent.is_none():
                 return out
             out = out.parent.value()
 
@@ -209,7 +209,7 @@ class TreeNode:
         for line in s.splitlines():
             try:
                 node = node_from_str(line, node)
-                if not node.has_value():
+                if node.is_none():
                     continue
                 if node.value().level > current_level:
                     insert_point = insert_point.value().last_child()

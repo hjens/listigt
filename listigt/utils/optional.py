@@ -26,6 +26,9 @@ class Optional(Generic[T]):
     def has_value(self) -> bool:
         return self._value is not None
 
+    def is_none(self) -> bool:
+        return not self.has_value()
+
     def value(self) -> T:
         if self.has_value():
             return self._value
@@ -38,12 +41,12 @@ class Optional(Generic[T]):
         return self._value if self.has_value() else None
 
     def __copy__(self):
-        if not self.has_value():
+        if self.is_none():
             return Optional.none()
         return Optional.some(copy(self.value()))
 
     def __deepcopy__(self, memodict={}):
-        if not self.has_value():
+        if self.is_none():
             return Optional.none()
         return Optional.some(deepcopy(self.value(), memodict))
 
@@ -68,7 +71,7 @@ class Optional(Generic[T]):
             return super().__getattribute__(item)
         except AttributeError:
             # If self has no value, make a function that always returns none()
-            if not self.has_value():
+            if self.is_none():
                 def return_none(*args, **kwargs):
                     return Optional.none()
                 return CallableWrapper(return_none)
