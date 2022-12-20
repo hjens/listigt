@@ -25,8 +25,8 @@ class TreeNode:
     def append_child(
         self, child: TreeNode, after_child: Optional[TreeNode] = Optional.none()
     ):
-        if after_child.has_value():
-            index = self.children.index(after_child.value())
+        if after_child := after_child.value_or_none():
+            index = self.children.index(after_child)
             self.children.insert(index + 1, child)
         else:
             self._children.append(child)
@@ -37,7 +37,7 @@ class TreeNode:
         return len(self.children) > 0
 
     def add_sibling(self, new_node: TreeNode):
-        self.parent.value().append_child(new_node, after_child=Optional.some(self))
+        self.parent.append_child(new_node, after_child=Optional.some(self))
 
     def remove_node(self, node: TreeNode):
         if node in self._children:
@@ -50,9 +50,9 @@ class TreeNode:
         self, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> Optional[TreeNode]:
         try:
-            if filter_func.has_value():
+            if filter_func := filter_func.value_or_none():
                 return Optional.some(
-                    [child for child in self.children if filter_func.value()(child)][0]
+                    [child for child in self.children if filter_func(child)][0]
                 )
             else:
                 return Optional.some(self.children[0])
@@ -63,9 +63,9 @@ class TreeNode:
         self, filter_func: Optional[FilterFunction] = Optional.none()
     ) -> Optional[TreeNode]:
         try:
-            if filter_func.has_value():
+            if filter_func := filter_func.value_or_none():
                 return Optional.some(
-                    [child for child in self.children if filter_func.value()(child)][-1]
+                    [child for child in self.children if filter_func(child)][-1]
                 )
             else:
                 return Optional.some(self.children[-1])
