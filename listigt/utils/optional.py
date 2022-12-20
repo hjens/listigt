@@ -53,6 +53,14 @@ class Optional(Generic[T]):
     def __dir__(self) -> Iterable[str]:
         return set(super().__dir__()).union(set(self.value().__dir__()))
 
+    def __str__(self):
+        if self.is_none():
+            return "Optional(None)"
+        return f"Optional[{self.value()}]"
+
+    def __repr__(self):
+        return str(self)
+
     def __getattribute__(self, item):
         class CallableWrapper:
             def __init__(self, callable):
