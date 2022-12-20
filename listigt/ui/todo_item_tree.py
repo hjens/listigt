@@ -12,7 +12,9 @@ from listigt.view_model.view_model import ListItem
 class TodoItemTree(ptg.Container):
     INDENT_SPACES = 3
 
-    def __init__(self, vm: view_model.ViewModel, search_field: SearchInput, **attrs: Any):
+    def __init__(
+        self, vm: view_model.ViewModel, search_field: SearchInput, **attrs: Any
+    ):
         super().__init__(**attrs)
         self._view_model = vm
         self._search_field = search_field
@@ -72,7 +74,7 @@ class TodoItemTree(ptg.Container):
         if key == "/" and not self._view_model.is_searching:
             self._search_field.select(0)
             self._view_model.update_search("")
-            self._search_field.prompt  = "Search: "
+            self._search_field.prompt = "Search: "
             return True
         if self._view_model.is_searching:
             if self._search_field.handle_key(key):
@@ -113,9 +115,7 @@ class TodoItemTree(ptg.Container):
                     label.value = ""
 
             list_title, breadcrumbs = self._view_model.list_title()
-            self._title_label.value = (
-                f"[gray]{breadcrumbs}[bold primary]{list_title}"
-            )
+            self._title_label.value = f"[gray]{breadcrumbs}[bold primary]{list_title}"
 
         def show_or_hide_input_field(list_items):
             input_field_visible = self.input_field in self._widgets
@@ -127,8 +127,9 @@ class TodoItemTree(ptg.Container):
                 self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
 
                 if self._view_model.selected_node.has_value():
-                    list_items.insert = self._widgets.insert(self._view_model.index_of_selected_node() + 2,
-                                                             self.input_field)
+                    self._widgets.insert(
+                        self._view_model.index_of_selected_node() + 2, self.input_field
+                    )
                 else:
                     self._widgets.insert(1, self.input_field)
                 self.set_widgets(self._widgets)
@@ -176,4 +177,6 @@ class TodoItemTree(ptg.Container):
         symbol = symbol_for_item(item)
         completed_style = "[strikethrough forestgreen]" if item.is_completed else ""
         search_style = "[yellow]" if item.is_search_result else ""
-        return indent + style + completed_style + search_style + symbol + " " + item.text
+        return (
+            indent + style + completed_style + search_style + symbol + " " + item.text
+        )
