@@ -13,11 +13,11 @@ from listigt.utils.optional import Optional
 def main():
     args = _parse_args()
 
-    config_manager = config.ConfigManager(save_file=args.save_file, config_file=args.config_file)
-    tree = _read_saved_state(config_manager.save_file)
-    vm = view_model.ViewModel(
-        tree_root=tree, config_manager=config_manager
+    config_manager = config.ConfigManager(
+        save_file=Optional(args.save_file), config_file=Optional(args.config_file)
     )
+    tree = _read_saved_state(config_manager.save_file)
+    vm = view_model.ViewModel(tree_root=tree, config_manager=config_manager)
 
     def exit_handler():
         config_manager.save_config()
@@ -38,22 +38,21 @@ def _read_saved_state(save_file: Path) -> TreeNode:
     return TreeNode.from_string("", TodoItem.tree_node_from_str)
 
 
-
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "save_file",
         type=Path,
         nargs="?",
-        default=Optional.none(),
-        help=f"Save file to use. Will override the default, which is {config.ConfigManager().save_file}."
+        default=None,
+        help=f"Save file to use. Will override the default, which is {config.ConfigManager().save_file}.",
     )
     parser.add_argument(
         "--config_file",
         type=Path,
-        default=Optional.none(),
+        default=None,
         required=False,
-        help=f"Config file to use. Will override the default, which is {config.ConfigManager().config_file}"
+        help=f"Config file to use. Will override the default, which is {config.ConfigManager().config_file}",
     )
     return parser.parse_args()
 
