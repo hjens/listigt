@@ -43,7 +43,7 @@ class ConfigManager:
 
     @property
     def config_file(self) -> Path:
-        return self._save_file_override.value_or(self.config_dir / "config.toml")
+        return self._config_file_override.value_or(self.config_dir / "config.toml")
 
     def _load_config(self):
         try:
