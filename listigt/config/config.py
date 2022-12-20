@@ -11,7 +11,7 @@ class ConfigManager:
         save_file: Optional[Path] = Optional.none(),
         config_file: Optional[Path] = Optional.none(),
     ):
-        self._root_node_index = -1
+        self._root_node_index: Optional[int] = Optional.none()
         self._hide_complete_items = False
         self._save_file_override = save_file
         self._config_file_override = config_file
@@ -19,11 +19,11 @@ class ConfigManager:
 
     @property
     def root_node_index(self) -> Optional[int]:
-        return Optional.some(self._root_node_index) if self._root_node_index >= 0 else Optional.none()
+        return self._root_node_index
 
     @root_node_index.setter
     def root_node_index(self, new_value: Optional[int]):
-        self._root_node_index = new_value.value_or(-1)
+        self._root_node_index = new_value
 
     @property
     def hide_complete_items(self) -> bool:
@@ -48,7 +48,7 @@ class ConfigManager:
     def _load_config(self):
         try:
             toml_data = toml.load(str(self.config_file))
-            self._root_node_index = toml_data["State"].get("root_index", -1)
+            self._root_node_index = Optional(toml_data["State"].get("root_index", None))
             self._hide_complete_items = toml_data["State"].get(
                 "hide_complete_items", True
             )
@@ -64,7 +64,7 @@ class ConfigManager:
             toml.dump(
                 {
                     "State": {
-                        "root_index": self._root_node_index,
+                        "root_index": self._root_node_index.value_or_none(),
                         "hide_complete_items": self._hide_complete_items,
                     }
                 },

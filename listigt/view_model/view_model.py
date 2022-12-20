@@ -60,7 +60,7 @@ class ViewModel:
 
     def _restore_saved_root_node(self):
         root_index = self._config_manager.root_node_index
-        root_node = self.tree_root.root().node_at_index(root_index)
+        root_node = self.tree_root.root().node_at_index(root_index.value_or(-1))
         if root_node.has_value():
             self.set_as_root(root_node)
 
