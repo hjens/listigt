@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import copy, deepcopy
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Iterable
 
 
 class OptionalException(Exception):
@@ -46,6 +46,9 @@ class Optional(Generic[T]):
         if not self.has_value():
             return Optional.none()
         return Optional.some(deepcopy(self.value(), memodict))
+
+    def __dir__(self) -> Iterable[str]:
+        return set(super().__dir__()).union(set(self.value().__dir__()))
 
     def __getattribute__(self, item):
         class CallableWrapper:
