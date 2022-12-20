@@ -38,6 +38,7 @@ def save_file():
 def view_model(tree_root, save_file):
     config_manager = config.ConfigManager()
     config_manager.hide_complete_items = False
+    config_manager.root_node_index = Optional.none()
 
     vm = ViewModel(tree_root, config_manager)
     vm.set_window_height(10)
