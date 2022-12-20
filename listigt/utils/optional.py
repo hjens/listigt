@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy, deepcopy
 from typing import TypeVar, Generic
 
 
@@ -35,6 +36,16 @@ class Optional(Generic[T]):
 
     def value_or_none(self) -> T | None:
         return self._value if self.has_value() else None
+
+    def __copy__(self):
+        if not self.has_value():
+            return Optional.none()
+        return Optional.some(copy(self.value()))
+
+    def __deepcopy__(self, memodict={}):
+        if not self.has_value():
+            return Optional.none()
+        return Optional.some(deepcopy(self.value(), memodict))
 
     def __getattribute__(self, item):
         class CallableWrapper:

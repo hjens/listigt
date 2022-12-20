@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 
 import pytest
 
@@ -257,3 +257,9 @@ def test_copy():
 
     assert node.data == "test"
     assert copied_node.data == "changed"
+
+
+def test_deepcopy(tree_and_nodes):
+    root, _ = tree_and_nodes
+    copied_tree = deepcopy(root)
+    assert root.is_equivalent_to(copied_tree)

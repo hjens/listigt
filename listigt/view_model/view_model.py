@@ -226,7 +226,7 @@ class ViewModel:
 
     def start_edit(self):
         if self.selected_node.has_value():
-            self._item_being_edited = copy.deepcopy(self.selected_node)
+            self._item_being_edited = Optional.some(copy.deepcopy(self.selected_node.value()))
 
     def cancel_edit(self):
         self._item_being_edited = Optional.none()
