@@ -49,7 +49,15 @@ def test_method_chaining():
         def echo(self, arg):
             return arg
 
+        def echo_multiple_args(self, arg1, arg2):
+            return arg1, arg2
+
+        def echo_nothing(self):
+            return None
+
     optional_foo1 = Optional.some(Foo())
     optional_foo2 = Optional.some(Foo())
     assert optional_foo1.echo(optional_foo2).echo(3).value() == 3
     assert not optional_foo1.echo(None).echo(3).has_value()
+    assert not optional_foo1.echo(None).echo_multiple_args(3, 5).has_value()
+    assert not optional_foo1.echo(None).echo_nothing().has_value()

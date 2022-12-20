@@ -66,7 +66,9 @@ class Optional(Generic[T]):
         except AttributeError:
             # If self has no value, make a function that always returns none()
             if not self.has_value():
-                return CallableWrapper(lambda _: Optional.none())
+                def return_none(*args, **kwargs):
+                    return Optional.none()
+                return CallableWrapper(return_none)
             # Get the attribute from the value
             attribute = self.value().__getattribute__(item)
             # If the attribute is a callable, wrap it before returning,
