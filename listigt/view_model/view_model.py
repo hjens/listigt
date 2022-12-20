@@ -1,4 +1,5 @@
 import copy
+import enum
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -25,6 +26,12 @@ class StateBeforeSearch:
     collapsed_nodes: List[TreeNode]
 
 
+class InsertionState(enum.Enum):
+    NOT_INSERTING = enum.auto()
+    BEFORE = enum.auto()
+    AFTER = enum.auto()
+
+
 class ViewModel:
     def __init__(
         self, tree_root: TreeNode,  config_manager: config.ConfigManager
@@ -32,7 +39,7 @@ class ViewModel:
         self._config_manager = config_manager
         self.tree_root = tree_root
         self.selected_node: Optional[TreeNode] = Optional.none()
-        self._is_inserting = False
+        self._insertion_state = InsertionState.NOT_INSERTING
         self._cut_item: Optional[TreeNode] = Optional.none()
         self._item_being_edited: Optional[TreeNode] = Optional.none()
         self._search_string: Optional[str] = Optional.none()
@@ -189,15 +196,27 @@ class ViewModel:
             self._first_item_on_screen + self._num_items_on_screen
         )
 
-    def start_insert(self):
-        self._is_inserting = True
+    def start_insert_before(self):
+        self._insertion_state = InsertionState.BEFORE
+
+    def start_insert_after(self):
+        self._insertion_state = InsertionState.AFTER
 
     def cancel_insert(self):
-        self._is_inserting = False
+        self._insertion_state = InsertionState.NOT_INSERTING
+
+    def insertion_index(self) -> int:
+        if self.selected_node.has_value():
+            if self._insertion_state == InsertionState.AFTER:
+                return self.index_of_selected_node() + 2
+            elif self._insertion_state == InsertionState.BEFORE:
+                return self.index_of_selected_node() + 1
+        else:
+            return 1
 
     @property
     def is_inserting(self):
-        return self._is_inserting
+        return self._insertion_state is not InsertionState.NOT_INSERTING
 
     def insert_item(self, item_text: str):
         self._push_undo_state()
@@ -209,10 +228,13 @@ class ViewModel:
             if should_add_node_as_child:
                 selected_node.prepend_child(new_node)
             else:
-                selected_node.add_sibling(new_node)
+                if self._insertion_state == InsertionState.AFTER:
+                    selected_node.add_sibling_after_self(new_node)
+                else:
+                    selected_node.add_sibling_before_self(new_node)
         else:
-            self.tree_root.append_child(new_node)
-        self._is_inserting = False
+            self.tree_root.add_child(new_node)
+        self._insertion_state = InsertionState.NOT_INSERTING
         self.selected_node = Optional.some(new_node)
         self._last_item_on_screen += 1
 
@@ -347,9 +369,9 @@ class ViewModel:
             return
 
         if self.selected_node.has_value():
-            self.selected_node.value().add_sibling(self._cut_item.value())
+            self.selected_node.value().add_sibling_after_self(self._cut_item.value())
         else:
-            self.tree_root.append_child(self._cut_item.value())
+            self.tree_root.add_child(self._cut_item.value())
         self._cut_item.value().update_level_to_parent()
         self._cut_item = Optional.none()
 

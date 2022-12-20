@@ -87,7 +87,8 @@ class TodoItemTree(ptg.Container):
             "L": lambda: self._view_model.select_bottom(),
             "H": lambda: self._view_model.select_top(),
             "M": lambda: self._view_model.select_middle(),
-            "n": lambda: self._view_model.start_insert(),
+            "n": lambda: self._view_model.start_insert_after(),
+            "N": lambda: self._view_model.start_insert_before(),
             "x": lambda: self._view_model.delete_item(),
             "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
             "h": lambda: self._view_model.move_root_upwards(),
@@ -126,12 +127,7 @@ class TodoItemTree(ptg.Container):
                 indent = self._view_model.insertion_indent()
                 self.input_field.prompt = " " * indent * self.INDENT_SPACES + "• "
 
-                if self._view_model.selected_node.has_value():
-                    self._widgets.insert(
-                        self._view_model.index_of_selected_node() + 2, self.input_field
-                    )
-                else:
-                    self._widgets.insert(1, self.input_field)
+                self._widgets.insert(self._view_model.insertion_index(), self.input_field)
                 self.set_widgets(self._widgets)
                 self.input_field.select(0)
 

@@ -37,8 +37,8 @@ def test_tree_to_and_from_str():
     root = TreeNode(TodoItem("root"))
     leaf1 = TreeNode(TodoItem("leaf1"))
     leaf2 = TreeNode(TodoItem("leaf2"))
-    root.append_child(leaf1)
-    root.append_child(leaf2)
+    root.add_child(leaf1)
+    root.add_child(leaf2)
 
     tree_as_str = str(root)
 
