@@ -25,13 +25,13 @@ def tree_and_nodes():
     sub_branch = TreeNode("sub_branch")
     leaf3 = TreeNode("leaf3")
     leaf4 = TreeNode("leaf4")
-    root.append_child(branch1)
-    root.append_child(branch2)
-    root.append_child(leaf2, after_child=Optional.some(branch1))
-    branch1.append_child(sub_branch)
-    sub_branch.append_child(leaf3)
-    branch1.append_child(leaf1)
-    branch2.append_child(leaf4)
+    root.add_child(branch1)
+    root.add_child(branch2)
+    root.add_child(leaf2, after_child=Optional.some(branch1))
+    branch1.add_child(sub_branch)
+    sub_branch.add_child(leaf3)
+    branch1.add_child(leaf1)
+    branch2.add_child(leaf4)
 
     nodes = {
         "root": root,
@@ -69,17 +69,61 @@ def test_add_tree_nodes(tree_and_nodes):
     assert leaf1.root() == root
 
 
-def test_add_sibling():
+def test_add_sibling_after_self():
     root = TreeNode("root")
     branch1 = TreeNode("branch1")
     branch2 = TreeNode("branch2")
 
-    root.append_child(branch1)
-    branch1.add_sibling(branch2)
+    root.add_child(branch1)
+    branch1.add_sibling_after_self(branch2)
 
     assert root.children == [branch1, branch2]
     assert not branch1.children
     assert not branch2.children
+
+def test_add_sibling_before_self():
+    root = TreeNode("root")
+    branch1 = TreeNode("branch1")
+    branch2 = TreeNode("branch2")
+
+    root.add_child(branch1)
+    branch1.add_sibling_before_self(branch2)
+
+    assert root.children == [branch2, branch1]
+    assert not branch1.children
+    assert not branch2.children
+
+
+def test_add_child_last(tree_and_nodes):
+    root, nodes = tree_and_nodes
+
+    branch1 = nodes["branch1"]
+    branch1.add_child(TreeNode("last"))
+
+    assert branch1.last_child().value().data == "last"
+
+
+def test_add_child_after(tree_and_nodes):
+    root, nodes = tree_and_nodes
+
+    branch1 = nodes["branch1"]
+    sub_branch = nodes["sub_branch"]
+    branch1.add_child(TreeNode("new_node"), after_child=Optional.some(sub_branch))
+
+    assert branch1.children[0].data == "sub_branch"
+    assert branch1.children[1].data == "new_node"
+
+
+def test_add_child_before(tree_and_nodes):
+    root, nodes = tree_and_nodes
+
+    branch1 = nodes["branch1"]
+    sub_branch = nodes["sub_branch"]
+    branch1.add_child(TreeNode("new_node"), before_child=Optional.some(sub_branch))
+
+    assert branch1.children[0].data == "new_node"
+    assert branch1.children[1].data == "sub_branch"
+
 
 def test_prepend_child(tree_and_nodes):
     root, nodes = tree_and_nodes
@@ -127,10 +171,10 @@ def test_change_level():
     branch2 = TreeNode("branch2")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.append_child(branch1)
-    root.append_child(branch2)
-    branch1.append_child(leaf1)
-    leaf1.append_child(leaf2)
+    root.add_child(branch1)
+    root.add_child(branch2)
+    branch1.add_child(leaf1)
+    leaf1.add_child(leaf2)
 
     root.change_level(-1)
 
@@ -188,7 +232,6 @@ def test_gen_all_nodes_with_complex_condition(tree_and_nodes):
         assert output.data == expected
 
 
-
 def test_node_at_index(tree_and_nodes):
     root, nodes = tree_and_nodes
     assert root.node_at_index(3).value() == nodes["leaf1"]
@@ -207,10 +250,10 @@ def test_remove_child():
     branch2 = TreeNode("branch2")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.append_child(branch1)
-    root.append_child(branch2)
-    branch1.append_child(leaf1)
-    leaf1.append_child(leaf2)
+    root.add_child(branch1)
+    root.add_child(branch2)
+    branch1.add_child(leaf1)
+    leaf1.add_child(leaf2)
 
     assert leaf1 in branch1.children
     root.remove_node(leaf1)
@@ -225,8 +268,8 @@ def test_to_str():
     root = TreeNode("root")
     leaf1 = TreeNode("leaf1")
     leaf2 = TreeNode("leaf2")
-    root.append_child(leaf1)
-    root.append_child(leaf2)
+    root.add_child(leaf1)
+    root.add_child(leaf2)
 
     expected = "- root\n  - leaf1\n  - leaf2"
 

@@ -22,12 +22,23 @@ class TreeNode:
         child._level = self._level + 1
         child._parent = Optional.some(self)
 
-    def append_child(
-        self, child: TreeNode, after_child: Optional[TreeNode] = Optional.none()
+    def add_child(
+        self,
+        child: TreeNode,
+        after_child: Optional[TreeNode] = Optional.none(),
+        before_child: Optional[TreeNode] = Optional.none(),
     ):
+        if after_child.has_value() and before_child.has_value():
+            raise ValueError(
+                "Only one of after_child and before_child may be specified"
+            )
+
         if after_child := after_child.value_or_none():
             index = self.children.index(after_child)
             self.children.insert(index + 1, child)
+        elif before_child := before_child.value_or_none():
+            index = self.children.index(before_child)
+            self.children.insert(index, child)
         else:
             self._children.append(child)
         child._level = self._level + 1
@@ -36,8 +47,11 @@ class TreeNode:
     def has_children(self) -> bool:
         return len(self.children) > 0
 
-    def add_sibling(self, new_node: TreeNode):
-        self.parent.append_child(new_node, after_child=Optional.some(self))
+    def add_sibling_after_self(self, new_node: TreeNode):
+        self.parent.value().add_child(new_node, after_child=Optional.some(self))
+
+    def add_sibling_before_self(self, new_node: TreeNode):
+        self.parent.value().add_child(new_node, before_child=Optional.some(self))
 
     def remove_node(self, node: TreeNode):
         if node in self._children:
@@ -201,7 +215,9 @@ class TreeNode:
 
     @classmethod
     def from_string(
-        cls, s: str, node_from_str: Callable[[str, Optional[TreeNode]], Optional[TreeNode]]
+        cls,
+        s: str,
+        node_from_str: Callable[[str, Optional[TreeNode]], Optional[TreeNode]],
     ) -> TreeNode:
         current_level = 0
         insert_point = node_from_str("- root", Optional.none())
@@ -217,7 +233,7 @@ class TreeNode:
                     for _ in range(current_level - node.value().level):
                         insert_point = insert_point.value().parent
                 current_level = node.value().level
-                insert_point.value().append_child(node.value())
+                insert_point.value().add_child(node.value())
             except ValueError as e:
                 continue
 
