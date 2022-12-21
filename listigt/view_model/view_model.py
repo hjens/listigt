@@ -364,12 +364,15 @@ class ViewModel:
             if not self.tree_root.has_children():
                 self.selected_node = Optional.none()
 
-    def paste_item(self):
+    def paste_item(self, before=False):
         if self._cut_item.is_none():
             return
 
         if self.selected_node.has_value():
-            self.selected_node.value().add_sibling_after_self(self._cut_item.value())
+            if before:
+                self.selected_node.value().add_sibling_before_self(self._cut_item.value())
+            else:
+                self.selected_node.value().add_sibling_after_self(self._cut_item.value())
         else:
             self.tree_root.add_child(self._cut_item.value())
         self._cut_item.value().update_level_to_parent()

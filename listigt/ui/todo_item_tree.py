@@ -93,6 +93,7 @@ class TodoItemTree(ptg.Container):
             "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
             "h": lambda: self._view_model.move_root_upwards(),
             "p": lambda: self._view_model.paste_item(),
+            "P": lambda: self._view_model.paste_item(before=True),
             "e": lambda: self._view_model.start_edit(),
             "c": lambda: self._view_model.toggle_hide_complete_items(),
             "u": lambda: self._view_model.undo(),
