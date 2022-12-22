@@ -74,6 +74,12 @@ ALL_ACTIONS = {
         key=ptg.keys.SPACE, help_text="Collapse/uncollapse item"
     ),
     Action.SEARCH: KeyboardAction(key="/", help_text="Search"),
+    Action.SELECT_NEXT_SEARCH_RESULT: KeyboardAction(
+        key=ptg.keys.DOWN, help_text="Select next search result"
+    ),
+    Action.SELECT_PREVIOUS_SEARCH_RESULT: KeyboardAction(
+        key=ptg.keys.UP, help_text="Select previous search result"
+    ),
 }
 
 
@@ -82,3 +88,13 @@ def action_for_key(key: str) -> Optional[Action]:
         if action_details.key == key:
             return Optional.some(action)
     return Optional.none()
+
+
+def display_text_for_key(key: str) -> str:
+    display_names = {
+        ptg.keys.ENTER: "Enter",
+        ptg.keys.SPACE: "Space",
+        ptg.keys.UP: "Up",
+        ptg.keys.DOWN: "Down",
+    }
+    return display_names.get(key, key)
