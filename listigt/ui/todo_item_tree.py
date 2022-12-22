@@ -3,6 +3,7 @@ from typing import Any
 import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
+from listigt.ui.action import Action, action_for_key
 from listigt.ui.new_item_input import NewItemInput
 from listigt.ui.search_field import SearchInput
 from listigt.view_model import view_model
@@ -22,6 +23,35 @@ class TodoItemTree(ptg.Container):
         self._create_new_item_input_widget()
         self._create_edit_item_widget()
         self._create_default_label_widgets()
+        self._setup_keyhandlers()
+
+    def _setup_keyhandlers(self):
+        def search():
+            if not self._view_model.is_searching:
+                self._search_field.select(0)
+                self._view_model.update_search("")
+                self._search_field.prompt = "Search: "
+
+        self._key_handlers = {
+            Action.SELECT_NEXT: self._view_model.select_next,
+            Action.SELECT_PREVIOUS: self._view_model.select_previous,
+            Action.SELECT_BOTTOM: self._view_model.select_bottom,
+            Action.SELECT_TOP: self._view_model.select_top,
+            Action.SELECT_MIDDLE: self._view_model.select_middle,
+            Action.INSERT_AFTER: self._view_model.start_insert_after,
+            Action.INSERT_BEFORE: self._view_model.start_insert_before,
+            Action.DELETE_ITEM: self._view_model.delete_item,
+            Action.SET_AS_ROOT: lambda: self._view_model.set_as_root(self._view_model.selected_node),
+            Action.MOVE_ROOT_UP: self._view_model.move_root_upwards,
+            Action.PASTE_ITEM_AFTER: self._view_model.paste_item,
+            Action.PASTE_ITEM_BEFORE: lambda: self._view_model.paste_item(before=True),
+            Action.EDIT_ITEM: self._view_model.start_edit,
+            Action.TOGGLE_HIDE_COMPLETE: self._view_model.toggle_hide_complete_items,
+            Action.UNDO: self._view_model.undo,
+            Action.TOGGLE_COMPLETE: self._view_model.toggle_complete,
+            Action.COLLAPSE: self._view_model.toggle_collapse_node,
+            Action.SEARCH: search,
+        }
 
     def _create_edit_item_widget(self, value: str = ""):
         def on_edit_item_submit(text):
@@ -70,39 +100,13 @@ class TodoItemTree(ptg.Container):
             return self.input_field.handle_key(key)
         if self._view_model.is_editing:
             return self.edit_item_field.handle_key(key)
-
-        if key == "/" and not self._view_model.is_searching:
-            self._search_field.select(0)
-            self._view_model.update_search("")
-            self._search_field.prompt = "Search: "
-            return True
         if self._view_model.is_searching:
             if self._search_field.handle_key(key):
                 self._update_widgets()
                 return True
 
-        key_handlers = {
-            "j": lambda: self._view_model.select_next(),
-            "k": lambda: self._view_model.select_previous(),
-            "L": lambda: self._view_model.select_bottom(),
-            "H": lambda: self._view_model.select_top(),
-            "M": lambda: self._view_model.select_middle(),
-            "n": lambda: self._view_model.start_insert_after(),
-            "N": lambda: self._view_model.start_insert_before(),
-            "x": lambda: self._view_model.delete_item(),
-            "l": lambda: self._view_model.set_as_root(self._view_model.selected_node),
-            "h": lambda: self._view_model.move_root_upwards(),
-            "p": lambda: self._view_model.paste_item(),
-            "P": lambda: self._view_model.paste_item(before=True),
-            "e": lambda: self._view_model.start_edit(),
-            "c": lambda: self._view_model.toggle_hide_complete_items(),
-            "u": lambda: self._view_model.undo(),
-            ptg.keys.ENTER: lambda: self._view_model.toggle_complete(),
-            ptg.keys.SPACE: lambda: self._view_model.toggle_collapse_node(),
-        }
-
-        if key in key_handlers:
-            key_handlers[key]()
+        if action := action_for_key(key).value_or_none():
+            self._key_handlers[action]()
             self._update_widgets()
             return True
 

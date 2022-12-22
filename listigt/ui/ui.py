@@ -4,6 +4,8 @@ from pytermgui import VerticalAlignment
 from listigt.ui.search_field import SearchInput
 from listigt.ui.todo_item_tree import TodoItemTree
 from listigt.view_model import view_model
+from listigt.ui.help_window import HelpWindow
+
 
 def _define_layout() -> ptg.Layout:
     layout = ptg.Layout()
@@ -22,6 +24,7 @@ def start_ui(vm: view_model.ViewModel):
 
         search_input = SearchInput(vm)
         todo_item_tree = TodoItemTree(vm, search_input)
+        help_window = HelpWindow(manager)
 
         body_window = ptg.Window(
             todo_item_tree,
@@ -36,9 +39,13 @@ def start_ui(vm: view_model.ViewModel):
         manager.add(footer_window, animate=False)
 
         def handle_key(key):
+            if help_window.handle_key(key):
+                return True
             if todo_item_tree.handle_key(key):
                 return True
             if key == "q":
                 manager.stop()
+            if key == "?":
+                help_window.show()
 
         manager.handle_key = handle_key
