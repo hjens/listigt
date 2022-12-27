@@ -27,6 +27,7 @@ class Action(enum.Enum):
     SEARCH = enum.auto()
     SELECT_NEXT_SEARCH_RESULT = enum.auto()
     SELECT_PREVIOUS_SEARCH_RESULT = enum.auto()
+    QUIT = enum.auto
 
 
 @dataclass
@@ -79,6 +80,9 @@ ALL_ACTIONS = {
     ),
     Action.SELECT_PREVIOUS_SEARCH_RESULT: KeyboardAction(
         key=ptg.keys.UP, help_text="Select previous search result"
+    ),
+    Action.QUIT: KeyboardAction(
+        key="q", help_text="Quit"
     ),
 }
 

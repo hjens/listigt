@@ -106,9 +106,10 @@ class TodoItemTree(ptg.Container):
                 return True
 
         if action := action_for_key(key).value_or_none():
-            self._key_handlers[action]()
-            self._update_widgets()
-            return True
+            if action in self._key_handlers:
+                self._key_handlers[action]()
+                self._update_widgets()
+                return True
 
         return False
 
