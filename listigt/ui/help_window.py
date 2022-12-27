@@ -9,32 +9,36 @@ class HelpWindow(ptg.Window):
         super().__init__()
         self._visible = False
         self._manager = manager
+        self.width = 50
 
         title = f"[primary bold]Help"
-        actions = [Action.SELECT_NEXT,
-                   Action.SELECT_PREVIOUS,
-                   Action.SELECT_BOTTOM,
-                   Action.SELECT_TOP,
-                   Action.SELECT_MIDDLE,
-                   None,
-                   Action.SET_AS_ROOT,
-                   Action.MOVE_ROOT_UP,
-                   Action.COLLAPSE,
-                   None,
-                   Action.INSERT_BEFORE,
-                   Action.INSERT_AFTER,
-                   Action.DELETE_ITEM,
-                   None,
-                   Action.PASTE_ITEM_BEFORE,
-                   Action.PASTE_ITEM_AFTER,
-                   Action.EDIT_ITEM,
-                   Action.TOGGLE_COMPLETE,
-                   Action.TOGGLE_HIDE_COMPLETE,
-                   None,
-                   Action.SEARCH,
-                   Action.SELECT_NEXT_SEARCH_RESULT,
-                   Action.SELECT_PREVIOUS_SEARCH_RESULT
-                   ]
+        actions = [
+            Action.SELECT_NEXT,
+            Action.SELECT_PREVIOUS,
+            Action.SELECT_BOTTOM,
+            Action.SELECT_TOP,
+            Action.SELECT_MIDDLE,
+            None,
+            Action.SET_AS_ROOT,
+            Action.MOVE_ROOT_UP,
+            Action.COLLAPSE,
+            None,
+            Action.INSERT_BEFORE,
+            Action.INSERT_AFTER,
+            Action.DELETE_ITEM,
+            None,
+            Action.PASTE_ITEM_BEFORE,
+            Action.PASTE_ITEM_AFTER,
+            Action.EDIT_ITEM,
+            Action.TOGGLE_COMPLETE,
+            Action.TOGGLE_HIDE_COMPLETE,
+            None,
+            Action.SEARCH,
+            Action.SELECT_NEXT_SEARCH_RESULT,
+            Action.SELECT_PREVIOUS_SEARCH_RESULT,
+            None,
+            Action.QUIT
+        ]
         self.set_widgets([title] + [self._label_for_action(a) for a in actions])
 
     def show(self):
@@ -45,7 +49,7 @@ class HelpWindow(ptg.Window):
         if not self._visible:
             return False
 
-        if key in ["q", ptg.keys.ESC]:
+        if key == ptg.keys.ESC:
             self._visible = False
             self._manager.remove(self)
             return True
@@ -56,4 +60,7 @@ class HelpWindow(ptg.Window):
 
         key = display_text_for_key(ALL_ACTIONS[action].key)
         help_text = ALL_ACTIONS[action].help_text
-        return ptg.Label(f"[green]{key}[/] - {help_text}", parent_align=HorizontalAlignment.LEFT)
+        spaces = " " * (7 - len(key))
+        return ptg.Label(
+            f"[green]{key}[/]{spaces}{help_text}", parent_align=HorizontalAlignment.LEFT
+        )
