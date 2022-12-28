@@ -62,7 +62,7 @@ class TodoItemTree(ptg.Container):
         def on_new_item_submit(text):
             self._view_model.insert_item(text)
             self._update_widgets()
-            self._view_model.start_insert()
+            self._view_model.start_insert_after()
             self._update_widgets()
 
         def on_new_item_cancel(text):
