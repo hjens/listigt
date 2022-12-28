@@ -168,7 +168,7 @@ def test_toggle_collapse_node(view_model):
 def test_insert_start_cancel(view_model):
     assert not view_model.is_inserting
 
-    view_model.start_insert()
+    view_model.start_insert_after()
     assert view_model.is_inserting
 
     view_model.cancel_insert()
