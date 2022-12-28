@@ -10,8 +10,9 @@ class FooterWindow(ptg.Window):
         super().__init__(*args, *kwargs)
         self._view_model = view_model
 
+        self._help_label = ptg.Label("Press ? to show help")
         self._search_input = SearchInput(self._view_model)
-        self.set_widgets([self._search_input])
+        self.set_widgets([ptg.Splitter(self._search_input, self._help_label)])
 
     def handle_key(self, key: str) -> bool:
         if self._view_model.is_searching:

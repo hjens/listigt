@@ -90,7 +90,7 @@ class TodoItemTree(ptg.Container):
     def handle_key(self, key: str) -> bool:
         if self._view_model.is_searching:
             return False
-        
+
         if self._view_model.is_inserting:
             return self.input_field.handle_key(key)
         if self._view_model.is_editing:
