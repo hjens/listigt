@@ -80,7 +80,7 @@ class ViewModel:
             return ListItem(
                 text=node.data.text,
                 indentation_level=node.level - self.tree_root.level - 1,
-                is_selected=self.selected_node.has_value() and (node == self.selected_node.value()),
+                is_selected=node == self.selected_node.value_or_none(),
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
