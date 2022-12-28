@@ -8,12 +8,26 @@ class OptionalException(Exception):
     pass
 
 
+class CallableWrapper:
+    def __init__(self, callable):
+        self._callable = callable
+
+    def __call__(self, *args, **kwargs):
+        value = self._callable(*args, **kwargs)
+        if value is None:
+            return Optional.none()
+        elif isinstance(value, Optional):
+            return value
+        return Optional.some(value)
+
+
 T = TypeVar("T")
 
 
 class Optional(Generic[T]):
     def __init__(self, value: T | None):
         self._value = value
+        self.__cached_attrs = {}
 
     @classmethod
     def some(cls, value: T) -> Optional:
@@ -62,18 +76,6 @@ class Optional(Generic[T]):
         return str(self)
 
     def __getattribute__(self, item):
-        class CallableWrapper:
-            def __init__(self, callable):
-                self._callable = callable
-
-            def __call__(self, *args, **kwargs):
-                value = self._callable(*args, **kwargs)
-                if value is None:
-                    return Optional.none()
-                elif isinstance(value, Optional):
-                    return value
-                return Optional.some(value)
-
         try:
             # Is it an attribute defined on the Optional class? E.g. value()
             return super().__getattribute__(item)
