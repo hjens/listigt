@@ -14,11 +14,10 @@ class TodoItemTree(ptg.Container):
     INDENT_SPACES = 3
 
     def __init__(
-        self, vm: view_model.ViewModel, search_field: SearchInput, **attrs: Any
+        self, vm: view_model.ViewModel, **attrs: Any
     ):
         super().__init__(**attrs)
         self._view_model = vm
-        self._search_field = search_field
 
         self._create_new_item_input_widget()
         self._create_edit_item_widget()
@@ -26,12 +25,6 @@ class TodoItemTree(ptg.Container):
         self._setup_keyhandlers()
 
     def _setup_keyhandlers(self):
-        def search():
-            if not self._view_model.is_searching:
-                self._search_field.select(0)
-                self._view_model.update_search("")
-                self._search_field.prompt = "Search: "
-
         self._key_handlers = {
             Action.SELECT_NEXT: self._view_model.select_next,
             Action.SELECT_PREVIOUS: self._view_model.select_previous,
@@ -50,7 +43,6 @@ class TodoItemTree(ptg.Container):
             Action.UNDO: self._view_model.undo,
             Action.TOGGLE_COMPLETE: self._view_model.toggle_complete,
             Action.COLLAPSE: self._view_model.toggle_collapse_node,
-            Action.SEARCH: search,
         }
 
     def _create_edit_item_widget(self, value: str = ""):
@@ -96,14 +88,13 @@ class TodoItemTree(ptg.Container):
         self._update_widgets()
 
     def handle_key(self, key: str) -> bool:
+        if self._view_model.is_searching:
+            return False
+        
         if self._view_model.is_inserting:
             return self.input_field.handle_key(key)
         if self._view_model.is_editing:
             return self.edit_item_field.handle_key(key)
-        if self._view_model.is_searching:
-            if self._search_field.handle_key(key):
-                self._update_widgets()
-                return True
 
         if action := action_for_key(key).value_or_none():
             if action in self._key_handlers:
@@ -112,6 +103,11 @@ class TodoItemTree(ptg.Container):
                 return True
 
         return False
+
+    def post_handle_key(self):
+        if self._view_model.is_searching:
+            # We need to manually update widgets when searching
+            self._update_widgets()
 
     def _update_widgets(self):
         def update_texts_for_labels(list_items):
