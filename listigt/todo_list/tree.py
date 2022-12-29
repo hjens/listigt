@@ -230,3 +230,6 @@ class TreeNode:
         root = insert_point.value().root()
         root.change_level(-1)
         return root
+
+    def __repr__(self):
+        return f"TreeNode[{str(self.data)}]"
