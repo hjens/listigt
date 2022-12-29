@@ -133,12 +133,59 @@ def test_prepend_child(tree_and_nodes):
     assert nodes["branch1"].first_child().value().data == "new_node"
 
 
-def test_node_after(tree_and_nodes):
+@pytest.mark.parametrize(
+    "node, sibling_after",
+    [
+        ("branch1", "leaf2"),
+        ("leaf2", "branch2"),
+        ("leaf4", None),
+        ("branch2", None),
+        ("root", None),
+    ],
+)
+def test_sibling_after(tree_and_nodes, node, sibling_after):
     root, nodes = tree_and_nodes
 
-    assert root.node_after(nodes["branch1"]) == nodes["sub_branch"]
-    assert root.node_after(nodes["leaf1"]) == nodes["leaf2"]
-    assert root.node_after(nodes["leaf4"]) == nodes["branch1"]
+    if sibling_after is None:
+        assert root.sibling_after(nodes[node]).is_none()
+    else:
+        assert root.sibling_after(nodes[node]).value() == nodes[sibling_after]
+
+
+@pytest.mark.parametrize(
+    "node, sibling_before",
+    [
+        ("branch1", None),
+        ("leaf2", "branch1"),
+        ("leaf4", None),
+        ("branch2", "leaf2"),
+        ("root", None),
+    ],
+)
+def test_sibling_before(tree_and_nodes, node, sibling_before):
+    root, nodes = tree_and_nodes
+
+    if sibling_before is None:
+        assert root.sibling_before(nodes[node]).is_none()
+    else:
+        assert root.sibling_before(nodes[node]).value() == nodes[sibling_before]
+
+
+@pytest.mark.parametrize("node, node_after", [
+    ("branch1", "sub_branch"),
+    ("leaf1", "leaf2"),
+    ("leaf4", "branch1"),
+])
+def test_node_after(tree_and_nodes, node, node_after):
+    root, nodes = tree_and_nodes
+
+    assert root.node_after(nodes[node]) == nodes[node_after]
+
+
+def test_last_node(tree_and_nodes):
+    root, nodes = tree_and_nodes
+
+    assert root.last_node() == nodes["leaf4"]
 
 
 def test_visible_node_after(tree_and_nodes):
@@ -149,12 +196,16 @@ def test_visible_node_after(tree_and_nodes):
     assert root.node_after(nodes["leaf4"], only_visible=True) == nodes["branch1"]
 
 
-def test_node_before(tree_and_nodes):
+
+@pytest.mark.parametrize("node, node_before", [
+    ("sub_branch", "branch1"),
+    ("leaf1", "leaf3"),
+    ("branch1", "leaf4"),
+])
+def test_node_before(tree_and_nodes, node, node_before):
     root, nodes = tree_and_nodes
 
-    assert root.node_before(nodes["sub_branch"]) == nodes["branch1"]
-    assert root.node_before(nodes["leaf1"]) == nodes["leaf3"]
-    assert root.node_before(nodes["branch1"]) == nodes["leaf4"]
+    assert root.node_before(nodes[node]) == nodes[node_before]
 
 
 def test_visible_node_before(tree_and_nodes):

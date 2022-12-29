@@ -82,40 +82,62 @@ class TreeNode:
         except IndexError:
             return Optional.none()
 
+    def sibling_after(self, node: TreeNode, only_visible: bool = False) -> Optional[TreeNode]:
+        if node.parent.is_none():
+            return Optional.none()
+
+        siblings = node.parent.value().children
+        if only_visible:
+            siblings = [s for s in siblings if s.visible]
+        for index, sibling in enumerate(siblings):
+            if (sibling == node) and (index < len(siblings) - 1):
+                return Optional.some(siblings[index + 1])
+        return Optional.none()
+
+    def sibling_before(self, node: TreeNode, only_visible: bool = False) -> Optional[TreeNode]:
+        if node.parent.is_none():
+            return Optional.none()
+
+        siblings = node.parent.value().children
+        if only_visible:
+            siblings = [s for s in siblings if s.visible]
+        for index, sibling in enumerate(siblings):
+            if (sibling == node) and (index > 0):
+                return Optional.some(siblings[index - 1])
+        return Optional.none()
+
     def node_after(self, node: TreeNode, only_visible: bool = False) -> TreeNode:
         if not self.has_children():
             return self
 
-        if only_visible:
-            generator = self.gen_all_visible_nodes()
-        else:
-            generator = self.gen_all_nodes()
-        for item in generator:
-            if item == node:
-                try:
-                    return next(generator)
-                except StopIteration:
-                    return self.first_child(only_visible=only_visible).value_or(self)
-        # Did not find the given node in the sub-tree
-        return self
+        if first_child := node.first_child(only_visible).value_or_none():
+            return first_child
+
+        ancestor = node
+        while True:
+            if sibling := self.sibling_after(ancestor, only_visible).value_or_none():
+                return sibling
+            if ancestor.parent.has_value() and ancestor.parent.value() != self:
+                ancestor = ancestor.parent.value()
+            else:
+                return self.first_child(only_visible).value()
 
     def node_before(self, node: TreeNode, only_visible: bool = False) -> TreeNode:
         if not self.has_children():
             return self
 
-        # TODO: this could be optimized
-        if only_visible:
-            all_items = list(self.gen_all_visible_nodes())
-        else:
-            all_items = list(self.gen_all_nodes())
-        generator = reversed(all_items)
-        for item in generator:
-            if item == node:
-                try:
-                    return next(generator)
-                except StopIteration:
-                    return all_items[-1]
-        # Did not find the given node in the sub-tree
+        ancestor = node
+        if sibling := self.sibling_before(ancestor, only_visible).value_or_none():
+            if last_child := sibling.last_child(only_visible).value_or_none():
+                return last_child
+            return sibling
+        if node.parent.value() != self:
+            return node.parent.value()
+        return self.last_node(only_visible)
+
+    def last_node(self, only_visible: bool = False) -> TreeNode:
+        if last_child := self.last_child(only_visible).value_or_none():
+            return last_child.last_node(only_visible)
         return self
 
     def change_level(self, delta: int):
