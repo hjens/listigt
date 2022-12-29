@@ -6,12 +6,12 @@ import uuid
 from listigt.utils.optional import Optional
 
 T = TypeVar("T")
-FilterFunction = Callable[["TreeNode"], bool]
 
 
 class TreeNode:
     def __init__(self, data: T, level: int = 0):
         self.data = data
+        self.visible = True
         self._children: List[TreeNode] = []
         self._parent: Optional[TreeNode] = Optional.none()
         self._level: int = level
@@ -60,40 +60,34 @@ class TreeNode:
         for child in self.children:
             child.remove_node(node)
 
-    def first_child(
-        self, filter_func: Optional[FilterFunction] = Optional.none()
-    ) -> Optional[TreeNode]:
+    def first_child(self, only_visible: bool = False) -> Optional[TreeNode]:
         try:
-            if filter_func := filter_func.value_or_none():
+            if only_visible:
                 return Optional.some(
-                    [child for child in self.children if filter_func(child)][0]
+                    [child for child in self.children if child.visible][0]
                 )
             else:
                 return Optional.some(self.children[0])
         except IndexError:
             return Optional.none()
 
-    def last_child(
-        self, filter_func: Optional[FilterFunction] = Optional.none()
-    ) -> Optional[TreeNode]:
+    def last_child(self, only_visible: bool = False) -> Optional[TreeNode]:
         try:
-            if filter_func := filter_func.value_or_none():
+            if only_visible:
                 return Optional.some(
-                    [child for child in self.children if filter_func(child)][-1]
+                    [child for child in self.children if child.visible][-1]
                 )
             else:
                 return Optional.some(self.children[-1])
         except IndexError:
             return Optional.none()
 
-    def node_after(
-        self, node: TreeNode, filter_func: Optional[FilterFunction] = Optional.none()
-    ) -> TreeNode:
+    def node_after(self, node: TreeNode, only_visible: bool = False) -> TreeNode:
         if not self.has_children():
             return self
 
-        if filter_func.has_value():
-            generator = self.gen_all_nodes_with_condition(filter_func.value())
+        if only_visible:
+            generator = self.gen_all_visible_nodes()
         else:
             generator = self.gen_all_nodes()
         for item in generator:
@@ -101,19 +95,17 @@ class TreeNode:
                 try:
                     return next(generator)
                 except StopIteration:
-                    return self.first_child(filter_func).value_or(self)
+                    return self.first_child(only_visible=only_visible).value_or(self)
         # Did not find the given node in the sub-tree
         return self
 
-    def node_before(
-        self, node: TreeNode, filter_func: Optional[FilterFunction] = Optional.none()
-    ) -> TreeNode:
+    def node_before(self, node: TreeNode, only_visible: bool = False) -> TreeNode:
         if not self.has_children():
             return self
 
         # TODO: this could be optimized
-        if filter_func.has_value():
-            all_items = list(self.gen_all_nodes_with_condition(filter_func.value()))
+        if only_visible:
+            all_items = list(self.gen_all_visible_nodes())
         else:
             all_items = list(self.gen_all_nodes())
         generator = reversed(all_items)
@@ -137,14 +129,12 @@ class TreeNode:
             for node in child.gen_all_nodes():
                 yield node
 
-    def gen_all_nodes_with_condition(
-        self, filter_function: FilterFunction
-    ) -> Generator[TreeNode]:
+    def gen_all_visible_nodes(self) -> Generator[TreeNode]:
         for child in self.children:
-            if not filter_function(child):
+            if not child.visible:
                 continue
             yield child
-            for node in child.gen_all_nodes_with_condition(filter_function):
+            for node in child.gen_all_visible_nodes():
                 yield node
 
     def node_at_index(self, index: int) -> Optional[TreeNode]:

@@ -137,7 +137,7 @@ def test_set_as_root(view_model):
 
 
 def test_set_as_root_when_first_child_is_complete(view_model):
-    view_model._config_manager.hide_complete_items = True
+    view_model.toggle_hide_complete_items()
     assert view_model.selected_node.value().data.text == "Item 1"
     view_model.set_as_root(view_model.selected_node)
     assert view_model.selected_node.value().data.text == "Item 1.2"

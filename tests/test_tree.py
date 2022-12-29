@@ -81,6 +81,7 @@ def test_add_sibling_after_self():
     assert not branch1.children
     assert not branch2.children
 
+
 def test_add_sibling_before_self():
     root = TreeNode("root")
     branch1 = TreeNode("branch1")
@@ -140,12 +141,12 @@ def test_node_after(tree_and_nodes):
     assert root.node_after(nodes["leaf4"]) == nodes["branch1"]
 
 
-def test_node_after_with_condition(tree_and_nodes):
+def test_visible_node_after(tree_and_nodes):
     root, nodes = tree_and_nodes
-    filter = Optional.some(lambda node: node.data != "sub_branch")
+    nodes["sub_branch"].visible = False
 
-    assert root.node_after(nodes["branch1"], filter) == nodes["leaf1"]
-    assert root.node_after(nodes["leaf4"], filter) == nodes["branch1"]
+    assert root.node_after(nodes["branch1"], only_visible=True) == nodes["leaf1"]
+    assert root.node_after(nodes["leaf4"], only_visible=True) == nodes["branch1"]
 
 
 def test_node_before(tree_and_nodes):
@@ -156,12 +157,12 @@ def test_node_before(tree_and_nodes):
     assert root.node_before(nodes["branch1"]) == nodes["leaf4"]
 
 
-def test_node_before_with_condition(tree_and_nodes):
+def test_visible_node_before(tree_and_nodes):
     root, nodes = tree_and_nodes
-    filter = Optional.some(lambda node: node.data != "sub_branch")
+    nodes["sub_branch"].visible = False
 
-    assert root.node_before(nodes["leaf1"], filter) == nodes["branch1"]
-    assert root.node_before(nodes["branch1"], filter) == nodes["leaf4"]
+    assert root.node_before(nodes["leaf1"], only_visible=True) == nodes["branch1"]
+    assert root.node_before(nodes["branch1"], only_visible=True) == nodes["leaf4"]
 
 
 def test_change_level():
@@ -203,30 +204,12 @@ def test_gen_all_nodes(tree_and_nodes):
         assert output.data == expected
 
 
-def test_gen_all_nodes_with_condition(tree_and_nodes):
+def test_gen_all_visible_nodes(tree_and_nodes):
     root, nodes = tree_and_nodes
 
-    def filter(node):
-        return node.data != "sub_branch"
-
-    generator = root.gen_all_nodes_with_condition(filter)
+    nodes["sub_branch"].visible = False
+    generator = root.gen_all_visible_nodes()
     expected_output = ["branch1", "leaf1", "leaf2", "branch2", "leaf4"]
-
-    for output, expected in zip(generator, expected_output):
-        assert output.data == expected
-
-
-def test_gen_all_nodes_with_complex_condition(tree_and_nodes):
-    root, nodes = tree_and_nodes
-
-    def filter(node):
-        try:
-            return node.parent.value().data != "sub_branch"
-        except OptionalException:
-            return False
-
-    generator = root.gen_all_nodes_with_condition(filter)
-    expected_output = ["branch1", "sub_branch", "leaf1", "leaf2", "branch2", "leaf4"]
 
     for output, expected in zip(generator, expected_output):
         assert output.data == expected

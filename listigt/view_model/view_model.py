@@ -6,7 +6,7 @@ from typing import List, Tuple
 from listigt.config import config
 from listigt.utils.optional import Optional
 from listigt.todo_list.todo_list import TodoItem
-from listigt.todo_list.tree import TreeNode, FilterFunction
+from listigt.todo_list.tree import TreeNode
 
 
 @dataclass
@@ -52,9 +52,11 @@ class ViewModel:
         self.set_window_height(0)
 
         if self.tree_root.children:
-            self.selected_node = self.tree_root.first_child(self._make_filter_func())
+            self.selected_node = self.tree_root.first_child(only_visible=True)
 
         self._undo_stack: List[TreeNode] = []
+
+        self._update_node_visibility()
 
     def save_to_file(self):
         with open(self._config_manager.save_file, "w") as f:
@@ -124,20 +126,22 @@ class ViewModel:
             self.select_next()
             old_selected_node.value().data.complete = True
 
+        self._update_node_visibility()
+
     def select_next(self):
         if self.selected_node.is_none():
-            self.selected_node = self.tree_root.first_child(self._make_filter_func())
+            self.selected_node = self.tree_root.first_child(only_visible=True)
         else:
             self.selected_node = Optional.some(self.tree_root.node_after(
-                self.selected_node.value(), self._make_filter_func()
+                self.selected_node.value(), only_visible=True
             ))
 
     def select_previous(self):
         if self.selected_node.is_none():
-            self.selected_node = self.tree_root.first_child(self._make_filter_func())
+            self.selected_node = self.tree_root.first_child(only_visible=True)
         else:
             self.selected_node = Optional.some(self.tree_root.node_before(
-                self.selected_node.value(), self._make_filter_func()
+                self.selected_node.value(), only_visible=True
             ))
 
     def select_bottom(self):
@@ -157,7 +161,7 @@ class ViewModel:
             self.selected_node = Optional.some(nodes_list[middle_index])
 
     def select_first(self):
-        self.selected_node = self.tree_root.first_child(self._make_filter_func())
+        self.selected_node = self.tree_root.first_child(only_visible=True)
 
     def set_as_root(self, node: Optional[TreeNode]):
         if node.is_none():
@@ -167,7 +171,7 @@ class ViewModel:
         self.tree_root = node.value()
         self.tree_root.data.collapsed = False
         if self.tree_root.has_children():
-            self.selected_node = self.tree_root.first_child(self._make_filter_func())
+            self.selected_node = self.tree_root.first_child(only_visible=True)
         else:
             self.selected_node = Optional.none()
         self._config_manager.root_node_index = self.tree_root.root().index_for_node(
@@ -195,6 +199,8 @@ class ViewModel:
         self._last_item_on_screen = (
             self._first_item_on_screen + self._num_items_on_screen
         )
+
+        self._update_node_visibility()
 
     def start_insert_before(self):
         self._insertion_state = InsertionState.BEFORE
@@ -276,10 +282,14 @@ class ViewModel:
         if self._search_results:
             self.selected_node = Optional.some(self._search_results[0])
 
+        self._update_node_visibility()
+
     def cancel_search(self):
         self._search_string = Optional.none()
         self._search_results = []
         self._restore_search_state()
+
+        self._update_node_visibility()
 
     def finish_search(self):
         self._search_string = Optional.none()
@@ -348,6 +358,8 @@ class ViewModel:
         else:
             node_to_complete.value().data.complete = False
 
+        self._update_node_visibility()
+
     def index_of_selected_node(self) -> int:
         for index, item in enumerate(self._all_visible_nodes()):
             if self.selected_node.has_value() and (item == self.selected_node.value()):
@@ -399,6 +411,8 @@ class ViewModel:
                 selected_node_index.value()
             )
 
+        self._update_node_visibility()
+
     def _update_scrolling(self, num_lines: int):
         if num_lines <= self._num_items_on_screen:
             self._first_item_on_screen = 0
@@ -417,10 +431,10 @@ class ViewModel:
             )
 
     def _all_visible_nodes(self):
-        return self.tree_root.gen_all_nodes_with_condition(self._make_filter_func().value())
+        return self.tree_root.gen_all_visible_nodes()
 
-    def _make_filter_func(self) -> Optional[FilterFunction]:
-        def filter_func(node: TreeNode) -> bool:
+    def _update_node_visibility(self):
+        def node_is_visible(node: TreeNode) -> bool:
             # Always hide completed items if hide_complete is set
             if self._config_manager.hide_complete_items and node.data.complete:
                 return False
@@ -428,11 +442,12 @@ class ViewModel:
             if node.parent.has_value() and node.parent.value().data.collapsed:
                 return False
             # Make sure we hide all children of hidden nodes
-            if node.parent.has_value() and not filter_func(node.parent.value()):
+            if node.parent.has_value() and not node_is_visible(node.parent.value()):
                 return False
             return True
 
-        return Optional.some(filter_func)
+        for node in self.tree_root.gen_all_nodes():
+            node.visible = node_is_visible(node)
 
     def _push_undo_state(self):
         saved_tree = copy.deepcopy(self.tree_root.root())
