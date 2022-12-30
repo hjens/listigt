@@ -33,9 +33,7 @@ class InsertionState(enum.Enum):
 
 
 class ViewModel:
-    def __init__(
-        self, tree_root: TreeNode,  config_manager: config.ConfigManager
-    ):
+    def __init__(self, tree_root: TreeNode, config_manager: config.ConfigManager):
         self._config_manager = config_manager
         self.tree_root = tree_root
         self.selected_node: Optional[TreeNode] = Optional.none()
@@ -81,7 +79,9 @@ class ViewModel:
     def list_items(self) -> List[ListItem]:
         def list_item_from_node(node):
             indent = node.level - self.tree_root.level - 1
-            is_selected = self.selected_node.has_value() and node == self.selected_node.value()
+            is_selected = (
+                self.selected_node.has_value() and node == self.selected_node.value()
+            )
             return ListItem(
                 text=self._label_display_text(node.data.text, indent, is_selected),
                 indentation_level=indent,
@@ -135,22 +135,26 @@ class ViewModel:
         if self.selected_node.is_none():
             self.selected_node = self.tree_root.first_child(only_visible=True)
         else:
-            self.selected_node = Optional.some(self.tree_root.node_after(
-                self.selected_node.value(), only_visible=True
-            ))
+            self.selected_node = Optional.some(
+                self.tree_root.node_after(self.selected_node.value(), only_visible=True)
+            )
 
     def select_previous(self):
         if self.selected_node.is_none():
             self.selected_node = self.tree_root.first_child(only_visible=True)
         else:
-            self.selected_node = Optional.some(self.tree_root.node_before(
-                self.selected_node.value(), only_visible=True
-            ))
+            self.selected_node = Optional.some(
+                self.tree_root.node_before(
+                    self.selected_node.value(), only_visible=True
+                )
+            )
 
     def select_bottom(self):
         nodes_list = list(self._all_visible_nodes())
         if len(nodes_list) >= self._last_item_on_screen - 1:
-            self.selected_node = Optional.some(nodes_list[self._last_item_on_screen - 1])
+            self.selected_node = Optional.some(
+                nodes_list[self._last_item_on_screen - 1]
+            )
 
     def select_top(self):
         nodes_list = list(self._all_visible_nodes())
@@ -196,7 +200,9 @@ class ViewModel:
 
     def toggle_collapse_node(self):
         if self.selected_node.has_value():
-            self.selected_node.value().data.collapsed = not self.selected_node.value().data.collapsed
+            self.selected_node.value().data.collapsed = (
+                not self.selected_node.value().data.collapsed
+            )
         self._last_item_on_screen = (
             self._first_item_on_screen + self._num_items_on_screen
         )
@@ -255,7 +261,9 @@ class ViewModel:
 
     def start_edit(self):
         if self.selected_node.has_value():
-            self._item_being_edited = Optional.some(copy.deepcopy(self.selected_node.value()))
+            self._item_being_edited = Optional.some(
+                copy.deepcopy(self.selected_node.value())
+            )
 
     def cancel_edit(self):
         self._item_being_edited = Optional.none()
@@ -299,17 +307,17 @@ class ViewModel:
     def select_next_search_result(self):
         for i, search_result in enumerate(self._search_results):
             if search_result == self.selected_node.value():
-                self.selected_node = Optional.some(self._search_results[
-                    (i + 1) % len(self._search_results)
-                ])
+                self.selected_node = Optional.some(
+                    self._search_results[(i + 1) % len(self._search_results)]
+                )
                 break
 
     def select_previous_search_result(self):
         for i, search_result in enumerate(self._search_results):
             if search_result == self.selected_node.value():
-                self.selected_node = Optional.some(self._search_results[
-                    (i - 1) % len(self._search_results)
-                ])
+                self.selected_node = Optional.some(
+                    self._search_results[(i - 1) % len(self._search_results)]
+                )
                 break
 
     def _is_search_result(self, node: TreeNode) -> bool:
@@ -328,8 +336,11 @@ class ViewModel:
                 self._state_before_search.collapsed_nodes.append(node.parent.value())
                 uncollapse_parents(node.parent.value())
 
-        search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
-        self._search_results = list(search_results)
+        self._search_results = [
+            node
+            for node in self.tree_root.gen_all_nodes()
+            if self._is_search_result(node)
+        ]
         for result in self._search_results:
             uncollapse_parents(result)
 
@@ -383,9 +394,13 @@ class ViewModel:
 
         if self.selected_node.has_value():
             if before:
-                self.selected_node.value().add_sibling_before_self(self._cut_item.value())
+                self.selected_node.value().add_sibling_before_self(
+                    self._cut_item.value()
+                )
             else:
-                self.selected_node.value().add_sibling_after_self(self._cut_item.value())
+                self.selected_node.value().add_sibling_after_self(
+                    self._cut_item.value()
+                )
         else:
             self.tree_root.add_child(self._cut_item.value())
         self._cut_item.value().update_level_to_parent()
@@ -396,7 +411,7 @@ class ViewModel:
             return
 
         tree_root_index = self.tree_root.root().index_for_node(self.tree_root)
-        selected_node_index = ( # TODO: clean up
+        selected_node_index = (  # TODO: clean up
             None
             if self.selected_node.is_none()
             else self.tree_root.root().index_for_node(self.selected_node.value())
@@ -406,7 +421,9 @@ class ViewModel:
         self.tree_root = undo_state
 
         if tree_root_index.has_value():
-            self.set_as_root(self.tree_root.root().node_at_index(tree_root_index.value()))
+            self.set_as_root(
+                self.tree_root.root().node_at_index(tree_root_index.value())
+            )
         if selected_node_index.has_value():
             self.selected_node = self.tree_root.root().node_at_index(
                 selected_node_index.value()
@@ -460,5 +477,5 @@ class ViewModel:
 
         limit = self._width - indent * 3 - 2  # TODO: this should use INDENT_SPACES
         if len(text) > (limit - 3):
-            return text[:limit-3] + "..."
+            return text[: limit - 3] + "..."
         return text
