@@ -446,7 +446,7 @@ class ViewModel:
                 return False
             return True
 
-        for node in self.tree_root.gen_all_nodes():
+        for node in self.tree_root.root().gen_all_nodes():
             node.visible = node_is_visible(node)
 
     def _push_undo_state(self):
