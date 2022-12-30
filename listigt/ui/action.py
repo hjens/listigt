@@ -25,6 +25,7 @@ class Action(enum.Enum):
     TOGGLE_COMPLETE = enum.auto()
     COLLAPSE = enum.auto()
     SEARCH = enum.auto()
+    CANCEL_SEARCH = enum.auto()
     SELECT_NEXT_SEARCH_RESULT = enum.auto()
     SELECT_PREVIOUS_SEARCH_RESULT = enum.auto()
     QUIT = enum.auto
@@ -75,6 +76,7 @@ ALL_ACTIONS = {
         key=ptg.keys.SPACE, help_text="Collapse/uncollapse item"
     ),
     Action.SEARCH: KeyboardAction(key="/", help_text="Search"),
+    Action.CANCEL_SEARCH: KeyboardAction(key=ptg.keys.ESC, help_text="Cancel search"),
     Action.SELECT_NEXT_SEARCH_RESULT: KeyboardAction(
         key=ptg.keys.DOWN, help_text="Select next search result"
     ),
@@ -100,5 +102,6 @@ def display_text_for_key(key: str) -> str:
         ptg.keys.SPACE: "Space",
         ptg.keys.UP: "Up",
         ptg.keys.DOWN: "Down",
+        ptg.keys.ESC: "Esc",
     }
     return display_names.get(key, key)

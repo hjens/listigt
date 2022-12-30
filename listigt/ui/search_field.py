@@ -42,7 +42,7 @@ class SearchInput(ptg.InputField):
         if key == ptg.keys.DOWN:
             self._view_model.select_next_search_result()
             return True
-        if key == ptg.keys.ESC:
+        if key == ptg.keys.ESC:  # TODO: do not use hardcoded values
             self._view_model.cancel_search()
             self.clear_text()
             return True

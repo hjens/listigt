@@ -3,7 +3,7 @@ from typing import Any
 import pytermgui as ptg
 from pytermgui import HorizontalAlignment
 
-from listigt.ui.action import Action, action_for_key
+from listigt.ui.action import Action, action_for_key, ALL_ACTIONS
 from listigt.ui.new_item_input import NewItemInput
 from listigt.ui.search_field import SearchInput
 from listigt.view_model import view_model
@@ -104,9 +104,11 @@ class TodoItemTree(ptg.Container):
 
         return False
 
-    def post_handle_key(self):
+    def post_handle_key(self, key: str):
         if self._view_model.is_searching:
-            # We need to manually update widgets when searching
+             #We need to manually update widgets when searching
+            self._update_widgets()
+        elif key == ALL_ACTIONS[Action.CANCEL_SEARCH].key:
             self._update_widgets()
 
     def on_resize(self):

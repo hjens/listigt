@@ -69,7 +69,7 @@ def start_ui(vm: view_model.ViewModel):
                 help_window.show()
                 key_handled = True
 
-            todo_item_tree.post_handle_key()
+            todo_item_tree.post_handle_key(key)
 
             return key_handled
 

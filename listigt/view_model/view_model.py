@@ -318,7 +318,7 @@ class ViewModel:
         return self._search_string.value().lower() in node.data.text.lower()
 
     def _update_search_results(self):
-        if len(self._search_string.value_or("")) < 3:
+        if len(self._search_string.value_or("")) < 2:
             self._search_results = []
             return
 
@@ -328,7 +328,7 @@ class ViewModel:
                 self._state_before_search.collapsed_nodes.append(node.parent.value())
                 uncollapse_parents(node.parent.value())
 
-        search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
+        search_results = filter(self._is_search_result, self.tree_root.gen_all_visible_nodes())
         self._search_results = list(search_results)
         for result in self._search_results:
             uncollapse_parents(result)
