@@ -1,3 +1,5 @@
+from typing import Callable
+
 import pytermgui as ptg
 from pytermgui import VerticalAlignment
 
@@ -16,16 +18,31 @@ def _define_layout() -> ptg.Layout:
 
     return layout
 
+class WinManager(ptg.WindowManager):
+    resize_callback: Callable
+
+    def on_resize(self, size: tuple[int, int]) -> None:
+        super().on_resize(size)
+
+        self.resize_callback(size)
 
 def start_ui(vm: view_model.ViewModel):
-    with ptg.WindowManager() as manager:
+    with WinManager() as manager:
         manager.layout = _define_layout()
         border_size = 4
+
         vm.set_window_size(manager.terminal.width - border_size * 2, manager.terminal.height - border_size * 2)
 
         footer_window = FooterWindow(vm, assign="footer")
         todo_item_tree = TodoItemTree(vm)
         help_window = HelpWindow(manager)
+
+        def on_resize(size: tuple[int, int]):
+            w, h = size
+            vm.set_window_size(w - border_size * 2, h - border_size * 2)
+            todo_item_tree.on_resize()
+
+        manager.resize_callback = on_resize
 
         body_window = ptg.Window(
             todo_item_tree,

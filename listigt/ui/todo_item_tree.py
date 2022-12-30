@@ -109,6 +109,9 @@ class TodoItemTree(ptg.Container):
             # We need to manually update widgets when searching
             self._update_widgets()
 
+    def on_resize(self):
+        self._update_widgets()
+
     def _update_widgets(self):
         def update_texts_for_labels(list_items):
             for index, label in enumerate(self._item_labels):
