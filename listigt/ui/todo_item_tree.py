@@ -115,6 +115,7 @@ class TodoItemTree(ptg.Container):
                 if index < len(list_items):
                     label.value = self._text_for_list_item(list_items[index])
                     label.padding = list_items[index].indentation_level * self.INDENT_SPACES
+                    label.non_first_padding = 2
                 else:
                     label.value = ""
 

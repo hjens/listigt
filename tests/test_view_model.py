@@ -41,7 +41,7 @@ def view_model(tree_root, save_file):
     config_manager.root_node_index = Optional.none()
 
     vm = ViewModel(tree_root, config_manager)
-    vm.set_window_height(10)
+    vm.set_window_size(50, 10)
 
     def mock_save():
         pass
@@ -56,7 +56,7 @@ def test_init(view_model):
 
 
 def test_set_window_height(view_model):
-    view_model.set_window_height(3)
+    view_model.set_window_size(0, 3)
     assert view_model._last_item_on_screen == 3
 
 
@@ -111,7 +111,7 @@ def test_select_previous(view_model):
 
 
 def test_select_top_bottom_middle(view_model):
-    view_model.set_window_height(3)
+    view_model.set_window_size(0, 3)
 
     view_model.select_bottom()
     assert view_model.selected_node.value().data.text == "Item 1.1.1"

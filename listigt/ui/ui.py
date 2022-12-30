@@ -20,7 +20,8 @@ def _define_layout() -> ptg.Layout:
 def start_ui(vm: view_model.ViewModel):
     with ptg.WindowManager() as manager:
         manager.layout = _define_layout()
-        vm.set_window_height(manager.terminal.height - 8)
+        border_size = 4
+        vm.set_window_size(manager.terminal.width - border_size * 2, manager.terminal.height - border_size * 2)
 
         footer_window = FooterWindow(vm, assign="footer")
         todo_item_tree = TodoItemTree(vm)

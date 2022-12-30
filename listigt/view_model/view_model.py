@@ -49,7 +49,7 @@ class ViewModel:
         )
         self._restore_saved_root_node()
 
-        self.set_window_height(0)
+        self.set_window_size(0, 0)
 
         if self.tree_root.children:
             self.selected_node = self.tree_root.first_child(only_visible=True)
@@ -62,7 +62,8 @@ class ViewModel:
         with open(self._config_manager.save_file, "w") as f:
             f.write("\n".join([str(item) for item in self.tree_root.root().children]))
 
-    def set_window_height(self, height: int):
+    def set_window_size(self, width: int, height: int):
+        self._width = width
         self._num_items_on_screen = height
         self._first_item_on_screen = 0
         self._last_item_on_screen = self._num_items_on_screen
@@ -79,10 +80,12 @@ class ViewModel:
 
     def list_items(self) -> List[ListItem]:
         def list_item_from_node(node):
+            indent = node.level - self.tree_root.level - 1
+            is_selected = self.selected_node.has_value() and node == self.selected_node.value()
             return ListItem(
-                text=node.data.text,
-                indentation_level=node.level - self.tree_root.level - 1,
-                is_selected=self.selected_node.has_value() and node == self.selected_node.value(),
+                text=self._label_display_text(node.data.text, indent, is_selected),
+                indentation_level=indent,
+                is_selected=is_selected,
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
@@ -450,3 +453,12 @@ class ViewModel:
     def _push_undo_state(self):
         saved_tree = copy.deepcopy(self.tree_root.root())
         self._undo_stack.append(saved_tree)
+
+    def _label_display_text(self, text: str, indent: int, is_selected: bool) -> str:
+        if is_selected:
+            return text
+
+        limit = self._width - indent * 3 - 2  # TODO: this should use INDENT_SPACES
+        if len(text) > (limit - 3):
+            return text[:limit-3] + "..."
+        return text
