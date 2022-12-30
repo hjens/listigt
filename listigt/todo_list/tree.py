@@ -235,16 +235,15 @@ class TreeNode:
         for line in s.splitlines():
             try:
                 node = node_from_str(line, node)
-                if node.is_none():
-                    continue
-                if node.value().level > current_level:
-                    insert_point = insert_point.value().last_child()
-                elif node.value().level < current_level:
-                    for _ in range(current_level - node.value().level):
-                        insert_point = insert_point.value().parent
-                current_level = node.value().level
-                insert_point.value().add_child(node.value())
-            except ValueError as e:
+                if node_value := node.value_or_none():
+                    if node_value.level > current_level:
+                        insert_point = insert_point.value().last_child()
+                    elif node_value.level < current_level:
+                        for _ in range(current_level - node_value.level):
+                            insert_point = insert_point.value().parent
+                    current_level = node_value.level
+                    insert_point.value().add_child(node_value)
+            except ValueError:
                 continue
 
         root = insert_point.value().root()
