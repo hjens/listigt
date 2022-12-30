@@ -275,7 +275,7 @@ class ViewModel:
         return self._search_string.has_value()
 
     def update_search(self, search_string: str):
-        if search_string == "" and self._state_before_search.selected_node is None:
+        if search_string == "" and self._state_before_search.selected_node.is_none():
             self._state_before_search.selected_node = self.selected_node
 
         self._search_string = Optional.some(search_string)
@@ -328,7 +328,7 @@ class ViewModel:
                 self._state_before_search.collapsed_nodes.append(node.parent.value())
                 uncollapse_parents(node.parent.value())
 
-        search_results = filter(self._is_search_result, self.tree_root.gen_all_visible_nodes())
+        search_results = filter(self._is_search_result, self.tree_root.gen_all_nodes())
         self._search_results = list(search_results)
         for result in self._search_results:
             uncollapse_parents(result)
