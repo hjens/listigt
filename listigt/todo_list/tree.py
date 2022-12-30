@@ -128,9 +128,7 @@ class TreeNode:
 
         ancestor = node
         if sibling := self.sibling_before(ancestor, only_visible).value_or_none():
-            if last_child := sibling.last_child(only_visible).value_or_none():
-                return last_child
-            return sibling
+            return sibling.last_node(only_visible)
         if node.parent.value() != self:
             return node.parent.value()
         return self.last_node(only_visible)
