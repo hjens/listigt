@@ -114,6 +114,7 @@ class TodoItemTree(ptg.Container):
             for index, label in enumerate(self._item_labels):
                 if index < len(list_items):
                     label.value = self._text_for_list_item(list_items[index])
+                    label.padding = list_items[index].indentation_level * self.INDENT_SPACES
                 else:
                     label.value = ""
 
@@ -169,12 +170,11 @@ class TodoItemTree(ptg.Container):
                 return "►"
             return "▼"
 
-        indent = " " * item.indentation_level * self.INDENT_SPACES
         highlighted = item.is_selected and not self._view_model.is_inserting
         style = "[inverse]" if highlighted else ""
         symbol = symbol_for_item(item)
         completed_style = "[strikethrough forestgreen]" if item.is_completed else ""
         search_style = "[yellow]" if item.is_search_result else ""
         return (
-            indent + style + completed_style + search_style + symbol + " " + item.text
+            style + completed_style + search_style + symbol + " " + item.text
         )
