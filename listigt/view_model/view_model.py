@@ -82,7 +82,7 @@ class ViewModel:
             return ListItem(
                 text=node.data.text,
                 indentation_level=node.level - self.tree_root.level - 1,
-                is_selected=node == self.selected_node.value_or_none(),
+                is_selected=self.selected_node.has_value() and node == self.selected_node.value(),
                 has_children=node.has_children(),
                 is_completed=node.data.complete,
                 is_collapsed=node.data.collapsed,
@@ -170,13 +170,11 @@ class ViewModel:
         # TODO: handle missing tree_root value properly
         self.tree_root = node.value()
         self.tree_root.data.collapsed = False
-        if self.tree_root.has_children():
-            self.selected_node = self.tree_root.first_child(only_visible=True)
-        else:
-            self.selected_node = Optional.none()
         self._config_manager.root_node_index = self.tree_root.root().index_for_node(
             self.tree_root
         )
+        self._update_node_visibility()
+        self.selected_node = self.tree_root.first_child(only_visible=True)
 
     def move_root_upwards(self):
         if self.tree_root.parent.has_value():
