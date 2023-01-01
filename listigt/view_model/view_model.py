@@ -1,5 +1,6 @@
 import copy
 import enum
+import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -473,10 +474,15 @@ class ViewModel:
         self._undo_stack.append(saved_tree)
 
     def _label_display_text(self, text: str, indent: int, is_selected: bool) -> str:
+        def process_links(text: str) -> str:
+            pattern = re.compile(
+                r"((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]))")
+            return pattern.sub(r"[skyblue underline ~\1]\1[/]", text)
+
         if is_selected:
             return text
 
         limit = self._width - indent * 3 - 2  # TODO: this should use INDENT_SPACES
         if len(text) > (limit - 3):
             return text[: limit - 3] + "..."
-        return text
+        return process_links(text)
