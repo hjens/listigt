@@ -452,6 +452,7 @@ class ViewModel:
         return self.tree_root.gen_all_visible_nodes()
 
     def _update_node_visibility(self):
+        # TODO: optimize this
         def node_is_visible(node: TreeNode) -> bool:
             # Always hide completed items if hide_complete is set
             if self._config_manager.hide_complete_items and node.data.complete:
